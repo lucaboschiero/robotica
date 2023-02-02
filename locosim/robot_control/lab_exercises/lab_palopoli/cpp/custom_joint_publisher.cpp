@@ -5,9 +5,10 @@
 #include <cstring>
 #include <custom_msgs/Coord.h>
 
+
 void send_des_jstate(const JointStateVector & joint_pos)
 {
-    //std::cout << "q_des " << joint_pos.transpose() << std::endl;
+    std::cout << "q_des " << joint_pos.transpose() << std::endl;
     if (real_robot)
     {
         for (int i = 0; i < joint_pos.size(); i++)
@@ -36,6 +37,7 @@ void send_des_jstate(const JointStateVector & joint_pos)
   } */
 }
 
+
 void initFilter(const JointStateVector & joint_pos)
 {
         filter_1 = joint_pos;
@@ -52,46 +54,114 @@ JointStateVector secondOrderFilter(const JointStateVector & input, const double 
         return filter_2;
 }
 
-void coordinate(const custom_msgs::Coord::ConstPtr& msg){
 
-    //cout<<"S: "<<s;
-    int cl;
-    double x,y,z;
+void detect(const custom_msgs::Coord::ConstPtr& msg){
+  //funzione che si sottoscrive al topic e riceve la matrice coi blocchetti
 
-    x=msg->x;
-    y=msg->y;
-    z=msg->z;
-    cl=msg->cl;
-    cl--;
+  Matrix103d blocks;
+  int cl;
+  double x,y,z;
 
-    blocks(cl,0)=x;
-    blocks(cl,1)=y;
-    blocks(cl,2)=z;
+  x=msg->x;
+  y=msg->y;
+  z=msg->z;
+  cl=msg->cl;
+  cl--;
 
-    //cout<<blocks<<endl;
-
-
-    /*char *div; // declare a ptr pointer
-    div = strtok(s, " "); // use strtok() function to separate string using comma (,) delimiter.
-    // use while loop to check ptr is not null
-    int cont=0;
-    while (div!=NULL || cont<4)
-    {
-        if(cont==0) x=atof(div);
-        if(cont==1) y=atof(div);
-        if(cont==2) z=atof(div);
-        if(cont==3) cl=atoi(div);
-        div = strtok (NULL, " ");
-        cont++;
-    }
-    cl--;
-    //cout<<"x: "<<x<<" y: "<<y<<" z: "<<z<<" classe: "<<cl<<endl;
-    blocks(cl,0)=x;
-    blocks(cl,1)=y;
-    blocks(cl,2)=z;
-    cout<<blocks<<endl;*/
+  blocks(cl,0)=x;
+  blocks(cl,1)=y;
+  blocks(cl,2)=z;
 
 }
+
+
+void motionPlan(Vector3d pos_blocchetto,int classe){
+
+  Vector3d posIniziale=ur5Direct(q_des0);
+
+  while(!moveTo(posIniziale,pos_blocchetto));  //muovo in base ai cubetti nella matrice
+
+  while(!grasp());
+
+
+  switch(classe){
+    case 1:
+      while(!moveTo(pos_blocchetto-Vector3d(0.5,-0.001,0.1),Vector3d(0.2,0.5,HTAVOLO)));              //muovo da pos_blocchetto a final stand (non so dove sia ma vabbe)
+    break;
+    case 2:
+      while(!moveTo(pos_blocchetto-Vector3d(0.5,-0.001,0.1),Vector3d(0.2,0.5,HTAVOLO)));
+    break;
+    case 3:
+      while(!moveTo(pos_blocchetto-Vector3d(0.5,-0.001,0.1),Vector3d(0.2,0.5,HTAVOLO)));
+    break;
+    case 4:
+      while(!moveTo(pos_blocchetto-Vector3d(0.5,-0.001,0.1),Vector3d(0.2,0.5,HTAVOLO)));
+    break;
+    case 5:
+      while(!moveTo(pos_blocchetto-Vector3d(0.5,-0.001,0.1),Vector3d(0.2,0.5,HTAVOLO)));
+    break;
+    case 6:
+      while(!moveTo(pos_blocchetto-Vector3d(0.5,-0.001,0.1),Vector3d(0.2,0.5,HTAVOLO)));
+    break;
+    case 7:
+      while(!moveTo(pos_blocchetto-Vector3d(0.5,-0.001,0.1),Vector3d(0.2,0.5,HTAVOLO)));
+    break;
+    case 8:
+      while(!moveTo(pos_blocchetto-Vector3d(0.5,-0.001,0.1),Vector3d(0.2,0.5,HTAVOLO)));
+    break;
+    case 9:
+      while(!moveTo(pos_blocchetto-Vector3d(0.5,-0.001,0.1),Vector3d(0.2,0.5,HTAVOLO)));
+    break;
+    case 10:
+      while(!moveTo(pos_blocchetto-Vector3d(0.5,-0.001,0.1),Vector3d(0.2,0.5,HTAVOLO)));
+    break;
+  }
+
+ 
+
+}
+
+
+
+bool homing(){
+  
+  
+  initFilter(q_des0);
+
+  send_des_jstate(q_des0);
+
+  return 1;
+}
+
+bool moveTo(Vector3d pos_iniziale,Vector3d pos_blocchetto){
+  Vector3d shift=Vector3d(0.5,-0.001,0.1);
+  pos_blocchetto=pos_blocchetto-shift;
+
+
+  Matrix86d Thresult=ur5Inverse(pos_iniziale);
+  Vector6d q_prova;
+  q_prova << Thresult(0,0), Thresult(0,1), Thresult(0,2), Thresult(0,3), Thresult(0,4), Thresult(0,5);
+  initFilter(q_prova);
+
+  MatrixXd differentialTH=invDiffKinematicControlSimComplete(pos_iniziale,pos_blocchetto,rotm2eulFDR(Re),Vector3d(0.0,0.0,0.0),q_prova,Kp,Kphi, TMIN, TMAX, DELTAT);
+
+  for(int i=0;i<differentialTH.rows();i++){
+    q_prova << differentialTH(i,0),differentialTH(i,1),differentialTH(i,2),differentialTH(i,3),differentialTH(i,4),differentialTH(i,5);
+    send_des_jstate(q_prova);
+  }
+
+  return 1;
+
+}
+
+bool grasp(){
+  sleep(5);
+  return 1;
+}
+
+
+
+
 
 int main(int argc, char **argv)
 {
@@ -101,7 +171,6 @@ int main(int argc, char **argv)
   //pub_des_jstate_sim_rt.reset(new realtime_tools::RealtimePublisher<sensor_msgs::JointState>(node, "/command", 1));
 
   //node.getParam("/real_robot", real_robot);
-
 
   if (real_robot)
   {
@@ -118,39 +187,28 @@ int main(int argc, char **argv)
   jointState_msg_sim.effort.resize(6);
   jointState_msg_robot.data.resize(6);
 
-  q_des0 << -0.3223527113543909, -0.7805794638446351, -2.5675506591796875, -1.6347843609251917, -1.5715253988849085, -1.0017417112933558;
-  initFilter(q_des0);
-
-  Vector3d peIniziale;
-  peIniziale=ur5Direct(q_des0);
-
+  
   JointStateVector amp;
   JointStateVector freq;
   amp << 0.3, 0.0, 0.0, 0.0, 0.0, 0.0;
   freq << 0.2, 0.0, 0.0, 0.0, 0., 0.0;
 
+
+  //globali
+  Kp = Matrix3d::Identity()*5;
+  Kphi = Matrix3d::Identity()*0.01;
+  q_des0 << -0.3223527113543909, -0.7805794638446351, -2.5675506591796875, -1.6347843609251917, -1.5715253988849085, -1.0017417112933558;
+
+
+
   ros::NodeHandle n;
-  ros::Subscriber sub = n.subscribe("/coordinates", 1000, coordinate);
-  Vector3d pe;
+  ros::Subscriber sub = n.subscribe("/coordinates", 1000, detect);
+        //funzione che si sottoscrive al topic e genera una matrice con posizione e classe dei blocchetti
+                         
+  cout<<detected_pos_blocchetti<<endl;
+                            
 
-  pe << 0.5, 0.4, 0.87;  // posizione desiderata rispetto al world frame (problemi con la y)
 
-
-  Vector3d shift;
-  shift=pe-Vector3d(0.5,0.65,0.15);                //posizione shiftata per avere pe rispetto al base frame
-  
-  Matrix86d Thresult=ur5Inverse(shift);
-  JointStateVector q_prova,q_prova0;
-  q_prova << Thresult(0,0), Thresult(0,1), Thresult(0,2), Thresult(0,3), Thresult(0,4), Thresult(0,5);
-  q_prova0 << 0.0,0.0,0.0,0.0,0.0,0.0;
-  initFilter(q_prova);
-  
-  //JointStateVector q_prova,q_prova0;
-  Matrix3d Kp = Matrix3d::Identity()*10;
-  Matrix3d Kphi = Matrix3d::Identity()*0.00001;
-  //q_prova0 << 0.00000,0.00000,0.00000,0.00000,0.00000,0.00000;
-  MatrixXd differentialTH=invDiffKinematicControlSimComplete(peIniziale,shift,rotm2eulFDR(Re),Vector3d(0.0,0.0,M_PI),q_des0,Kp,Kphi, TMIN, TMAX, DELTAT);
-  //cout<<differentialTH.rows()<<endl;
 
   int i=0;
   while (ros::ok())
@@ -159,29 +217,34 @@ int main(int argc, char **argv)
     //1- step reference
     if (loop_time < 5.)
     {
-      q_des = q_des0;
-      //send_des_jstate(q_des);
+      while(!homing());
+      //cout<<"Fine Homing\n";
     } else {
-      //JointStateVector delta_q;
-      //delta_q << 0., 0.4, 0., 0., 0., 0.;
-      //q_des = q_des0 + delta_q;
-
-      if(i<differentialTH.rows()){
-
-        q_prova << differentialTH(i,0),differentialTH(i,1),differentialTH(i,2),differentialTH(i,3),differentialTH(i,4),differentialTH(i,5);
-        //initFilter(q_prova);
-        //q_des = secondOrderFilter(q_prova, loop_frequency, 5.);
-        q_des=q_prova;
-        
-        //send_des_jstate_sim(q_des);
-        //send_des_jstate(q_des);
       
-        i++;
-        cout<<i<<endl;
+
+      for(int i=0;i<10;i++){
+
+        if(detected_pos_blocchetti(i,0)!=0 && detected_pos_blocchetti(i,1)!=0 && detected_pos_blocchetti(i,2)!=0){
+          
+          motionPlan(Vector3d(detected_pos_blocchetti(i,0),detected_pos_blocchetti(i,1),detected_pos_blocchetti(i,2)),i+1);       //passo posizione e classe
+
+          detected_pos_blocchetti(i,0)=0;
+          detected_pos_blocchetti(i,1)=0;
+          detected_pos_blocchetti(i,2)=0;
+
+          sleep(8);
+          while(!homing());
+          sleep(5);
+        }
+        
       }
+
+      
     }
-    send_des_jstate(q_des);
+
     loop_time += (double)1/loop_frequency;
+  
+    
     //2- sine reference
 //    q_des = q_des0.array() + amp.array()*(2*M_PI*freq*loop_time).array().sin();
 
@@ -192,3 +255,4 @@ int main(int argc, char **argv)
 
   return 0;
 }
+
