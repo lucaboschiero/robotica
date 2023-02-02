@@ -1,0 +1,14 @@
+material rocks
+{
+    technique
+    {
+        pass
+        {
+            texture_unit
+            {
+                texture rocks.jpg
+                scale 1 1
+            }
+        }   
+    }
+}

@@ -1,0 +1,54 @@
+﻿ros_impedance_controller:
+  type: ros_impedance_controller/Controller
+  joints:
+    - mountain_wire_pitch_r
+    - mountain_wire_roll_r
+    - wire_base_prismatic_r 
+    - wire_base_pitch_r
+    - wire_base_roll_r 
+    - wire_base_yaw_r
+    - mountain_wire_pitch_l
+    - mountain_wire_roll_l
+    - wire_base_prismatic_l 
+    - wire_base_pitch_l
+    - wire_base_roll_l
+    - wire_base_yaw_l
+    - hip_pitch 
+    - hip_roll 
+    - knee 
+
+  gains:
+      mountain_wire_pitch_r: {p: 0.0, i: 0.0, d: 0}
+      mountain_wire_roll_r: {p: 0.0, i: 0.0, d: 0}
+      wire_base_prismatic_r: {p: 0.0, i: 0.0, d: 0}
+      wire_base_pitch_r: {p: 0.0, i: 0.0, d: 0}
+      wire_base_roll_r: {p: 0.0, i: 0.0, d: 0}
+      wire_base_yaw_r: {p: 0.0, i: 0.0, d: 0}
+      mountain_wire_pitch_l: {p: 0.0, i: 0.0, d: 0}
+      mountain_wire_roll_l: {p: 0.0, i: 0.0, d: 0}
+      wire_base_prismatic_l: {p: 0.0, i: 0.0, d: 0}
+      wire_base_pitch_l: {p: 0.0, i: 0.0, d: 0}
+      wire_base_roll_l: {p: 0.0, i: 0.0, d: 0}
+      wire_base_yaw_l: {p: 0.0, i: 0.0, d: 0}
+      hip_pitch: {p: 0.0, i: 0.0, d: 0}
+      hip_roll: {p: 0.0, i: 0.0, d: 0}
+      knee: {p: 0.0, i: 0.0, d: 0}
+
+
+  home:
+      mountain_wire_pitch_r: 0.0
+      mountain_wire_roll_r: 0.0
+      wire_base_prismatic_r: 0
+      wire_base_pitch_r: 0
+      wire_base_roll_r: 0
+      wire_base_yaw_r: 0
+      mountain_wire_pitch_l: 0
+      mountain_wire_roll_l: 0
+      wire_base_prismatic_l: 0
+      wire_base_pitch_l: 0
+      wire_base_roll_l: 0
+      wire_base_yaw_l: 0
+      hip_pitch: 0
+      hip_roll: 0
+      knee: 0
+ 

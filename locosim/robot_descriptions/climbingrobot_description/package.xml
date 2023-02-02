@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+
+<package format="2">
+
+  <name>climbingrobot_description</name>
+  <version>0.0.1</version>
+  <description>climbingrobot Description Package</description>
+
+  <license>BSD-3</license>
+
+  <author email="X@Y.it"> XX</author>
+  
+  <maintainer email="X@Y.it">XX</maintainer>
+
+  <buildtool_depend>catkin</buildtool_depend>
+	
+  <exec_depend>gazebo_ros</exec_depend>
+
+</package>

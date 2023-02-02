@@ -1,0 +1,54 @@
+<?xml version="1.0"?>
+
+<robot xmlns:xacro="http://ros.org/wiki/xacro">
+
+
+    <xacro:macro name="flywheel_transmission">
+
+    <transmission name="z_right_wheel_trans">
+            <type>transmission_interface/SimpleTransmission</type>
+            <joint name="z_right_wheel_joint">
+                    <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+            </joint>
+            <actuator name="z_right_wheel_motor">
+                    <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+                    <mechanicalReduction>1</mechanicalReduction>
+            </actuator>
+    </transmission>
+
+    <transmission name="z_left_wheel_trans">
+            <type>transmission_interface/SimpleTransmission</type>
+            <joint name="z_left_wheel_joint">
+                    <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+            </joint>
+            <actuator name="z_left_wheel_motor">
+                    <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+                    <mechanicalReduction>1</mechanicalReduction>
+            </actuator>
+    </transmission>
+
+    <transmission name="z_back_wheel_trans">
+            <type>transmission_interface/SimpleTransmission</type>
+            <joint name="z_back_wheel_joint">
+                    <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+            </joint>
+            <actuator name="z_back_wheel_motor">
+                    <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+                    <mechanicalReduction>1</mechanicalReduction>
+            </actuator>
+    </transmission>
+
+    <transmission name="z_front_wheel_trans">
+            <type>transmission_interface/SimpleTransmission</type>
+            <joint name="z_front_wheel_joint">
+                    <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+            </joint>
+            <actuator name="z_front_wheel_motor">
+                    <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+                    <mechanicalReduction>1</mechanicalReduction>
+            </actuator>
+    </transmission>
+
+    </xacro:macro>
+
+</robot>

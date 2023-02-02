@@ -1,0 +1,23 @@
+<?xml version="1.0" ?>
+<launch>
+        <arg name="sensors" default="true"/>
+        <arg name="task_period" default="0.004"/>
+        <arg name="arm" default="false"/>
+
+
+        <!-- Load the sensors that measured the internal wrench in the joints -->
+        <arg name="internal_wrench" default="false"/>
+        <arg name="flywheel2" default="true" />
+  	<arg name="flywheel4" default="false" />
+        <arg name="new_gazebo_version" default="true" />
+
+        <!-- send solo urdf to param server -->
+        <param name="robot_description" command="$(find xacro)/xacro --inorder '$(find solo_fw_description)/robots/solo_fw.urdf.xacro'
+         new_gazebo_version:=$(arg new_gazebo_version) flywheel2:=$(arg flywheel2)  flywheel4:=$(arg flywheel4)  task_period:=$(arg task_period)"/>
+
+        <!-- send solo semantic description srdf to param server -->
+        <param name="robot_semantic_description" command="$(find xacro)/xacro --inorder '$(find solo_fw_description)/robots/solo_fw.srdf.xacro'" />
+
+</launch>
+
+

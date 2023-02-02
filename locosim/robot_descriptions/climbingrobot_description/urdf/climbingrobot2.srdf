@@ -1,0 +1,28 @@
+<?xml version="1.0" ?>
+<robot name="climbingrobot2" xmlns:xacro="http://ros.org/wiki/xacro">
+ 
+		
+     <group_state name="home" group="all_legs">
+		    <joint name="floating_base_joint" value="0. 0. 0.223 0. 0. 0. 1." />
+                    <joint name="mountain_wire_pitch" value="0.0" />
+                    <joint name="mountain_wire_roll" value="0.0" />
+                    <joint name="wire_base_prismatic" value="8" />
+                    <joint name="wire_base_pitch" value="0.0" />
+                    <joint name="wire_base_roll" value=".0" />
+                    <joint name="wire_base_yaw" value=".0" />
+
+                    <joint name="mountain_wire_pitch_2" value="0.0" />
+                    <joint name="mountain_wire_roll_2" value="0.0" />
+                    <joint name="wire_base_prismatic_2" value="8" />
+                    <joint name="wire_base_pitch_2" value="0.0" />
+                    <joint name="wire_base_roll_2" value=".0" />
+                    <joint name="wire_base_yaw_2" value=".0" />
+
+
+                    <joint name="hip_pitch" value="-1.57" />
+                    <joint name="hip_roll" value="0." />
+                    <joint name="knee" value="0." />
+        
+     </group_state>    
+    
+</robot>

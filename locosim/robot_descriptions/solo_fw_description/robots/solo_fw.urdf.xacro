@@ -1,0 +1,38 @@
+<?xml version="1.0" ?>
+<robot name="solo_fw" xmlns:xacro="http://ros.org/wiki/xacro">
+
+    <xacro:property name="color_name" value="grey" />
+    <xacro:property name="color" value="0.8 0.8 0.8" />
+    <xacro:property name="opacity" value="1.0" />
+
+
+    <!--- new_gazebo_version should be false by default because pinocchio needs it!-->
+    <xacro:arg name="flywheel2" default="false"/>
+    <xacro:arg name="angle_deg" default="0.0"/> 
+    <xacro:arg name="flywheel4" default="false"/>
+    <xacro:arg name="new_gazebo_version" default="false"/>	
+    <xacro:arg name="robot_name" default="solo_fw"/>	
+
+
+    <xacro:include filename="$(find solo_description)/robots/solo.urdf.xacro">
+        <xacro:arg name="task_period" value="$(arg task_period)"/>
+	<xacro:arg name="new_gazebo_version" value="$(arg new_gazebo_version)"/>
+        <xacro:arg name="robot_name" value="$(arg robot_name)"/>
+
+    </xacro:include>
+
+
+    <!-- Include 2 flywheels -->
+    <xacro:if value="$(arg flywheel2)">
+        <xacro:include filename="$(find solo_fw_description)/urdfs/flywheel2.xacro"/>
+        <!-- inertia =  m*radius^2 but I had to set 10 times more for sm stability-->
+        <xacro:flywheel_train radius="0.03" height="0.01" mass="0.1" inertia_z="0.000068" inertia_xy="0.000037" angle_deg="$(arg angle_deg)"/>
+    </xacro:if>
+    <!-- Include 4 flywheels -->
+    <xacro:if value="$(arg flywheel4)">
+        <xacro:include filename="$(find solo_fw_description)/urdfs/flywheel4.xacro"/>
+        <!-- inertia =  m*radius^2 but I had to set 10 times more for sm stability-->
+        <xacro:flywheel_train radius="0.05" mass_lr="0.1" inertia_lr="0.00025"  mass_fh="0.1" inertia_fh="0.00025"/>
+    </xacro:if>
+    
+</robot>

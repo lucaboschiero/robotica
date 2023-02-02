@@ -1,0 +1,128 @@
+<?xml version="1.0" ?>
+<robot name="jumpleg" xmlns:xacro="http://ros.org/wiki/xacro">
+
+    <xacro:property name="color_name" value="grey" />
+    <xacro:property name="color" value="0.8 0.8 0.8" />
+    <xacro:property name="opacity" value="1.0" />
+
+       
+    <xacro:include filename="$(find jumpleg_description)/gazebo/gazebo.urdf.xacro">
+        <xacro:arg name="task_period" value="$(arg task_period)"/>
+    </xacro:include>
+
+    <xacro:include filename="$(find jumpleg_description)/urdf/floatingbase.transmission.xacro"/>
+
+
+
+    <!-- The following included files set up definitions of parts of the robot body -->
+    <xacro:include filename="$(find jumpleg_description)/urdf/common.xacro"/>
+
+	 <link name="world"/>
+
+ 	<joint name="base_x_joint" type="prismatic">
+		<parent link="world"/>
+		<child link="fake_link1"/>
+		<axis xyz="1 0 0 "/>
+		<origin xyz="0 0 0" rpy="0 0 0"/>
+		<limit effort="1000" velocity="100.0" lower="-100" upper="100"/>
+
+	</joint> 
+
+	<link name="fake_link1">
+	<inertial>
+	<mass value="0.00001"/>
+	<inertia ixx="5.8083e-4" ixy="0" ixz="0" iyy="3.0833e-5" iyz="0" izz="5.9083e-4"/>
+	</inertial>
+	</link> 
+
+
+
+	<joint name="base_y_joint" type="prismatic">
+		<parent link="fake_link1"/>
+		<child link="fake_link2"/>
+		<axis xyz="0 1 0 "/>
+		<origin xyz="0 0 0" rpy="0 0 0"/>
+		<limit effort="1000" velocity="100.0" lower="-100" upper="100"/>
+
+	</joint> 
+
+	<link name="fake_link2">
+	<inertial>
+	<mass value="0.00001"/>
+	<inertia ixx="5.8083e-4" ixy="0" ixz="0" iyy="3.0833e-5" iyz="0" izz="5.9083e-4"/>
+	</inertial>
+	</link> 
+
+
+	<joint name="base_z_joint" type="prismatic">
+		<parent link="fake_link2"/>
+		<child link="base_link"/>
+		<axis xyz="0 0 1 "/>
+		<origin xyz="0 0 0" rpy="0 0 0"/>
+		<limit effort="1000" velocity="100.0" lower="-100" upper="100"/>
+
+	</joint> 
+
+
+      <link name="base_link"/>                
+
+    <joint name="floating_base" type="fixed">
+        <origin rpy="0 0 0" xyz="0 0 0"/>
+        <parent link="base_link"/>
+        <child link="trunk"/>
+    </joint>
+
+
+      <link name="trunk">
+        <inertial>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <mass value="1.16115091"/>
+            <!-- The base is extremely symmetrical. -->
+            <inertia ixx="0.00578574"   ixy="0.0"           ixz="0.0"
+                                        iyy="0.01938108"    iyz="0.0"
+                                                            izz="0.02476124"/>
+        </inertial>
+        
+        <visual>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <geometry>
+          	 <box size="0.05 0.05 0.05"/>
+            </geometry>
+                <material name="${color_name}">
+                <color rgba="${color} ${opacity}"/>
+            </material>
+        </visual>
+        <collision>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <geometry> 
+		 <box size="0.05 0.05 0.05"/>
+	   </geometry>
+            <material name="${color_name}">
+                <color rgba="${color} ${opacity}"/>
+            </material>
+        </collision>
+        <!-- Bullet specific paramters -->
+        <contact>
+            <lateral_friction value="1.0"/>
+            <restitution value="0.5"/>
+        </contact>
+    </link>
+
+
+    <!-- Include the legs -->
+    <xacro:include filename="$(find jumpleg_description)/urdf/leg.xacro"/>
+
+
+    <!-- LEFT FRONT LEG -->
+    <xacro:leg
+	    prefix="lf"
+	    is_front="true"
+	    is_right="false"
+	    has_side_motion="true"
+	    color_name="${color_name}"
+	    color="${color}"
+	    opacity="${opacity}"/>
+
+         <xacro:floating_base_transmission name=""/>
+    
+</robot>

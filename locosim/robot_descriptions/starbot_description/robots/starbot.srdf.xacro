@@ -1,0 +1,86 @@
+<?xml version="1.0" ?>
+<robot name="starbot" xmlns:xacro="http://ros.org/wiki/xacro">
+	<xacro:arg name="new_gazebo_version" default="true"/>
+    <!-- left front leg -->
+    <group name="lf_leg">
+        <joint name="lf_bs_joint" />
+        <joint name="lf_upper_leg_joint" />
+        <joint name="lf_lower_leg_joint" />
+        <joint name="lf_pre_wheel_joint" />
+        <joint name="lf_wheel_joint" />
+        <chain base_link="base_link" tip_link="lf_foot" />
+    </group>
+    <!-- right front leg -->
+    <group name="rf_leg">
+        <joint name="rf_bs_joint" />
+        <joint name="rf_upper_leg_joint" />
+        <joint name="rf_lower_leg_joint" />
+        <joint name="rf_pre_wheel_joint" />
+        <joint name="rf_wheel_joint" />
+        <chain base_link="base_link" tip_link="rf_foot" />
+    </group>
+    <!-- left hind leg -->
+    <group name="lh_leg">
+        <joint name="lh_bs_joint" />
+        <joint name="lh_upper_leg_joint" />
+        <joint name="lh_lower_leg_joint" />
+        <joint name="lh_pre_wheel_joint" />
+        <joint name="lh_wheel_joint" />
+        <chain base_link="base_link" tip_link="lh_foot" />
+    </group>
+    <!-- right hind leg -->
+    <group name="rh_leg">
+        <joint name="rh_bs_joint" />
+        <joint name="rh_upper_leg_joint" />
+        <joint name="rh_lower_leg_joint" />
+        <joint name="rh_pre_wheel_joint" />
+        <joint name="rh_wheel_joint" />
+        <chain base_link="base_link" tip_link="rh_foot" />
+    </group>
+
+
+    <end_effector name="lf_foot" parent_link="FL_FOOT" group="lf_leg" />
+    <end_effector name="rf_foot" parent_link="FR_FOOT" group="rf_leg" />
+    <end_effector name="lh_foot" parent_link="HL_FOOT" group="lh_leg" />
+    <end_effector name="rh_foot" parent_link="HR_FOOT" group="rh_leg" />
+
+    <group name="all_legs">
+		    <group name="lf" />
+		    <group name="rf" />
+		    <group name="lh" />
+		    <group name="rh" />
+     </group>
+		
+     <group_state name="home" group="all_legs">
+		    <joint name="floating_base_joint" value="0. 0. 0.223 0. 0. 0. 1." />
+		    
+		    <joint name="lf_bs_joint" value="0.0"  />
+		    <joint name="lf_upper_leg_joint" value="0.0"  />
+		    <joint name="lf_lower_leg_joint" value="0.0"  />
+		    <joint name="lf_pre_wheel_joint" value="0.0"  />
+		    <joint name="lf_wheel_joint" value="0.0"  />
+		    
+		    <joint name="rf_bs_joint" value="0.0"  />
+		    <joint name="rf_upper_leg_joint" value="0.0"  />
+		    <joint name="rf_lower_leg_joint" value="0.0"  />
+		    <joint name="rf_pre_wheel_joint" value="0.0"  />
+		    <joint name="rf_wheel_joint" value="0.0"  />
+		    
+		    <joint name="lh_bs_joint" value="0.0"  />
+		    <joint name="lh_upper_leg_joint" value="0.0"  />
+		    <joint name="lh_lower_leg_joint" value="0.0"  />
+		    <joint name="lh_pre_wheel_joint" value="0.0"  />
+		    <joint name="lh_wheel_joint" value="0.0"  />
+		    
+		    <joint name="rh_bs_joint" value="0.0"  />
+		    <joint name="rh_upper_leg_joint" value="0.0"  />
+		    <joint name="rh_lower_leg_joint" value="0.0"  />
+		    <joint name="rh_pre_wheel_joint" value="0.0"  />
+		    <joint name="rh_wheel_joint" value="0.0"  />
+		    
+     </group_state>    
+    
+
+    
+
+</robot>

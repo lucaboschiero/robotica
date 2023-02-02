@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="utf-8"?>
+<robot name="climb_wall" xmlns:xacro="http://ros.org/wiki/xacro">
+
+ <material name="Black">
+    <color rgba="${0/255} ${0/255} ${0/255} 1.0"/>
+  </material>
+
+ <material name="Red">
+    <color rgba="${255/255} ${100/255} ${0/255} 1.0"/>
+  </material>
+
+ <!--https://www.textures.com/browse/cliffs/2060 -->
+
+
+<xacro:arg name="obstacle" default="true"/>	
+
+<xacro:arg name="anchorZ" default="10."/>
+	
+<xacro:arg name="pillar_posY" default="1.5"/>
+<xacro:arg name="pillar_posZ" default="0"/>
+<xacro:arg name="pillar2_posY" default="5"/>
+<xacro:arg name="pillar2_posZ" default="-4"/>
+
+	<link name="wall">
+		<inertial>
+ 	        <mass value="10"/>
+ 	        <inertia ixx="0.4" ixy="0.0" ixz="0.0" iyy="0.4" iyz="0.0" izz="0.2"/>
+  	     </inertial>
+
+		<visual > <!-- dont put name otherwise gazebo discards color-->
+ 			<origin xyz="0 0 ${$(arg anchorZ)/2}"/>
+			<geometry>
+				<box size="0.1 $(arg anchorZ) $(arg anchorZ)"/>
+			</geometry>
+			<material name="Black"/><!--rviz"/-->
+			
+		</visual>
+	        <collision name="box">
+		       <origin xyz="0 0 ${$(arg anchorZ)/2}"/>
+		       <geometry>
+ 				<box size="0.1 $(arg anchorZ) $(arg anchorZ)"/>
+	        	</geometry>
+
+			
+				 <surface>
+				  <bounce>
+				    <restitution_coefficient>0.01</restitution_coefficient>
+				    <threshold>5.0</threshold>
+				  </bounce>
+				  <friction>
+				    <ode>
+       			           <mu>1</mu>
+				       <mu2>1</mu2>
+				    </ode>
+				  </friction>
+				  <contact>
+				     <ode>
+					<max_vel>0.1</max_vel>
+					<min_depth>0.001</min_depth>
+					<kp>1000000.0</kp>
+					<kd>1000.0</kd>
+				      </ode>
+				    </contact>
+				</surface>
+	       </collision>
+
+	</link>
+
+
+	<xacro:if value="$(arg obstacle)">
+	
+
+	<gazebo reference="pillar">
+   	 <material>Gazebo/RockWall</material>
+  	</gazebo>
+
+	  <joint name="base_pillar" type="fixed">
+	    <parent link="wall"/>
+	    <child link="pillar"/>
+	    <origin rpy="0 0 0" xyz="0 0.0 0"/>
+	  </joint>
+
+		<link name="pillar">
+		<inertial>
+ 	        <mass value="10"/>
+ 	        <inertia ixx="0.4" ixy="0.0" ixz="0.0" iyy="0.4" iyz="0.0" izz="0.2"/>
+  	        </inertial>
+
+		<visual > <!-- dont put name otherwise gazebo discards color-->
+ 			<origin xyz="0  $(arg pillar_posY) $(arg pillar_posZ)"/>
+		        <geometry>
+                          <mesh filename="package://climbingrobot_description/meshes/cone.stl" scale="1 1 1"/>
+                        </geometry>
+			<material name="Red"/><!--rviz"/-->
+			
+		</visual>
+	        <collision>
+		       <origin xyz="0   $(arg pillar_posY) $(arg pillar_posZ)"/>
+		  	 <origin xyz="0 0 0"/>
+		        <geometry>
+                          <mesh filename="package://climbingrobot_description/meshes/cone.stl" scale="1 1 1"/>
+                        </geometry>
+
+	       </collision>
+
+	</link>
+
+<!--
+	<gazebo reference="pillar2">
+   	 <material>Gazebo/RockWall</material>
+  	</gazebo> -->
+<!--
+	  <joint name="base_pillar2" type="fixed">
+	    <parent link="wall"/>
+	    <child link="pillar2"/>
+	    <origin rpy="0 0 0" xyz="0 0.0 0"/>
+	  </joint>-->
+<!--
+		<link name="pillar2">
+		<inertial>
+ 	        <mass value="10"/>
+ 	        <inertia ixx="0.4" ixy="0.0" ixz="0.0" iyy="0.4" iyz="0.0" izz="0.2"/>
+  	        </inertial>
+
+		<visual > 
+			<!-- dont put name otherwise gazebo discards color-->
+<!-- 			<origin xyz="0  $(arg pillar2_posY) $(arg pillar2_posZ)"/>
+		        <geometry>
+                          <mesh filename="package://climbingrobot_description/meshes/cone.stl" scale="1 1 1"/>
+                        </geometry>
+			<material name="Red"/><!--rviz"/-->
+<!--			
+		</visual>
+	        <collision>
+		       <origin xyz="0   $(arg pillar2_posY)  $(arg pillar2_posZ)"/>
+		  	 <origin xyz="0 0 0"/>
+		        <geometry>
+                          <mesh filename="package://climbingrobot_description/meshes/cone.stl" scale="1 1 1"/>
+                        </geometry>
+
+<!--	       </collision>
+
+	</link>-->
+
+
+
+	</xacro:if>
+
+
+	
+
+	<gazebo>
+	    <static>true</static>
+	</gazebo>
+
+	 <!--one of this /usr/share/gazebo-11/media/materials/scripts/gazebo.material   is for gazebo -->
+
+	<gazebo reference="wall">
+   	 <material>Gazebo/RockWall</material>
+  	</gazebo>
+
+
+</robot>

@@ -1,0 +1,35 @@
+<?xml version="1.0" ?>
+<launch>
+
+	<arg name="rviz_conf" default="$(find climbingrobot_description)/rviz/conf.rviz"/>
+	<arg name="robot_name" default="climbingrobot"/>
+
+
+	<env name="GAZEBO_MODEL_PATH" value="$(find climbingrobot_description)"/>
+
+	<!-- send hyq urdf to param server and spawn it -->
+	<include file="$(find climbingrobot_description)/launch/upload.launch">	
+		<arg name="robot_name" value="$(arg robot_name)" />
+	</include>
+
+	<node pkg="tf" type="static_transform_publisher" name="world_broadcaster" args="0.1 0 0 0 0 0   /wall /world  200"/>
+
+	<node pkg="tf" type="static_transform_publisher" name="pillar_broadcaster" args="0 0 0 0 0 0   /pillar /wall  200"/>
+
+
+   	<!-- joint_state_publisher publish joint states from sliders-->
+        <node name="joint_state_publisher" pkg="joint_state_publisher_gui" type="joint_state_publisher_gui"/>
+
+
+	<node name="robot_state_publisher" pkg="robot_state_publisher"
+		type="robot_state_publisher" respawn="true">
+		<param name="publish_frequency" value="200" />
+		<param name="rate" value="200" />
+	</node>
+
+	
+	<!-- run rviz -->
+	<node name="rviz" pkg="rviz" type="rviz" args="-d $(arg rviz_conf) -f world"/>
+
+</launch>
+

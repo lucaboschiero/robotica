@@ -1,0 +1,46 @@
+<?xml version="1.0"?>
+
+<robot xmlns:xacro="http://ros.org/wiki/xacro">
+
+        <xacro:macro name="floating_base_transmission" params="name">
+
+  
+     
+		<transmission name="base_x_trans">
+                        <type>transmission_interface/SimpleTransmission</type>
+                        <joint name="base_x_joint">
+                                <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+                        </joint>
+                        <actuator name="base_x_motor">
+                                <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+                                <mechanicalReduction>1</mechanicalReduction>
+                        </actuator>
+                </transmission>
+
+           
+		<transmission name="base_y_trans">
+                        <type>transmission_interface/SimpleTransmission</type>
+                        <joint name="base_y_joint">
+                                <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+                        </joint>
+                        <actuator name="base_y_motor">
+                                <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+                                <mechanicalReduction>1</mechanicalReduction>
+                        </actuator>
+                </transmission>
+
+
+         	<transmission name="base_z_trans">
+                        <type>transmission_interface/SimpleTransmission</type>
+                        <joint name="base_z_joint">
+                                <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+                        </joint>
+                        <actuator name="base_z_motor">
+                                <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+                                <mechanicalReduction>1</mechanicalReduction>
+                        </actuator>
+                </transmission>
+    
+        </xacro:macro>
+
+</robot>

@@ -1,0 +1,176 @@
+<?xml version="1.0"?>
+
+<robot xmlns:xacro="http://ros.org/wiki/xacro">
+
+        <xacro:macro name="climbingrobot_transmission">
+
+		
+
+
+
+  		<transmission name="mountain_wire_pitch_l">
+                        <type>transmission_interface/SimpleTransmission</type>
+                        <joint name="mountain_wire_pitch_l">
+                                <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+                        </joint>
+                        <actuator name="mountain_wire_pitch_l">
+                                <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+                                <mechanicalReduction>1</mechanicalReduction>
+                        </actuator>
+                </transmission>
+		<transmission name="mountain_wire_roll_l">
+                        <type>transmission_interface/SimpleTransmission</type>
+                        <joint name="mountain_wire_roll_l">
+                                <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+                        </joint>
+                        <actuator name="mountain_wire_roll_l">
+                                <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+                                <mechanicalReduction>1</mechanicalReduction>
+                        </actuator>
+                </transmission>	
+                <transmission name="wire_base_prismatic_l">
+                        <type>transmission_interface/SimpleTransmission</type>
+                        <joint name="wire_base_prismatic_l">
+                                <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+                        </joint>
+                        <actuator name="wire_base_prismatic_l">
+                                <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+                                <mechanicalReduction>1</mechanicalReduction>
+                        </actuator>
+                </transmission>
+   		<transmission name="wire_base_pitch_l">
+                        <type>transmission_interface/SimpleTransmission</type>
+                        <joint name="wire_base_pitch_l">
+                                <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+                        </joint>
+                        <actuator name="wire_base_pitch_l">
+                                <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+                                <mechanicalReduction>1</mechanicalReduction>
+                        </actuator>
+                </transmission>
+   		<transmission name="wire_base_roll_l">
+                        <type>transmission_interface/SimpleTransmission</type>
+                        <joint name="wire_base_roll_l">
+                                <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+                        </joint>
+                        <actuator name="wire_base_roll_l">
+                                <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+                                <mechanicalReduction>1</mechanicalReduction>
+                        </actuator>
+                </transmission>
+   		<transmission name="wire_base_yaw_l">
+                        <type>transmission_interface/SimpleTransmission</type>
+                        <joint name="wire_base_yaw_l">
+                                <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+                        </joint>
+                        <actuator name="wire_base_yaw_l">
+                                <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+                                <mechanicalReduction>1</mechanicalReduction>
+                        </actuator>
+                </transmission>
+
+
+	       <transmission name="mountain_wire_pitch_r">
+                        <type>transmission_interface/SimpleTransmission</type>
+                        <joint name="mountain_wire_pitch_r">
+                                <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+                        </joint>
+                        <actuator name="mountain_wire_pitch_r">
+                                <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+                                <mechanicalReduction>1</mechanicalReduction>
+                        </actuator>
+                </transmission>
+		<transmission name="mountain_wire_roll_r">
+                        <type>transmission_interface/SimpleTransmission</type>
+                        <joint name="mountain_wire_roll_r">
+                                <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+                        </joint>
+                        <actuator name="mountain_wire_roll_r">
+                                <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+                                <mechanicalReduction>1</mechanicalReduction>
+                        </actuator>
+                </transmission>	
+                <transmission name="wire_base_prismatic_r">
+                        <type>transmission_interface/SimpleTransmission</type>
+                        <joint name="wire_base_prismatic_r">
+                                <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+                        </joint>
+                        <actuator name="wire_base_prismatic_r">
+                                <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+                                <mechanicalReduction>1</mechanicalReduction>
+                        </actuator>
+                </transmission>
+   		<transmission name="wire_base_pitch_r">
+                        <type>transmission_interface/SimpleTransmission</type>
+                        <joint name="wire_base_pitch_r">
+                                <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+                        </joint>
+                        <actuator name="wire_base_pitch_r">
+                                <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+                                <mechanicalReduction>1</mechanicalReduction>
+                        </actuator>
+                </transmission>
+   		<transmission name="wire_base_roll_r">
+                        <type>transmission_interface/SimpleTransmission</type>
+                        <joint name="wire_base_roll_r">
+                                <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+                        </joint>
+                        <actuator name="wire_base_roll_r">
+                                <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+                                <mechanicalReduction>1</mechanicalReduction>
+                        </actuator>
+                </transmission>
+   		<transmission name="wire_base_yaw_r">
+                        <type>transmission_interface/SimpleTransmission</type>
+                        <joint name="wire_base_yaw_r">
+                                <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+                        </joint>
+                        <actuator name="wire_base_yaw_r">
+                                <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+                                <mechanicalReduction>1</mechanicalReduction>
+                        </actuator>
+                </transmission>
+
+
+ 
+                <transmission name="hip_pitch">
+                        <type>transmission_interface/SimpleTransmission</type>
+                        <joint name="hip_pitch">
+                                <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+                        </joint>
+                        <actuator name="hip_pitch">
+                                <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+                                <mechanicalReduction>1</mechanicalReduction>
+                        </actuator>
+                </transmission>
+ 
+                <transmission name="hip_roll">
+                        <type>transmission_interface/SimpleTransmission</type>
+                        <joint name="hip_roll">
+                                <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+                        </joint>
+                        <actuator name="hip_roll">
+                                <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+                                <mechanicalReduction>1</mechanicalReduction>
+                        </actuator>
+                </transmission>
+
+
+          	<transmission name="knee">
+                        <type>transmission_interface/SimpleTransmission</type>
+                        <joint name="knee">
+                                <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+                        </joint>
+                        <actuator name="knee">
+                                <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+                                <mechanicalReduction>1</mechanicalReduction>
+                        </actuator>
+                </transmission>
+        </xacro:macro>
+
+
+
+
+
+
+</robot>

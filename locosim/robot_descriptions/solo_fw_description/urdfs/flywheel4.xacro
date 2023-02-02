@@ -1,0 +1,116 @@
+<?xml version="1.0"?>
+
+<robot xmlns:xacro="http://ros.org/wiki/xacro" name="solo">
+
+    <!-- Things that are needed only for Gazebo (not the physical robot). These include sensor and controller plugin specifications -->
+    <xacro:macro name="flywheel_train" params="radius mass_fh mass_lr inertia_fh inertia_lr">
+
+        <xacro:include filename="$(find solo_fw_description)/urdfs/flywheel4.transmission.xacro"/>
+        <xacro:include filename="$(find solo_fw_description)/urdfs/flywheel4.gazebo.xacro"/>
+
+
+
+        <joint name="z_left_wheel_joint" type="revolute">
+            <parent link="trunk"/>
+            <child link="left_wheel"/>
+            <origin rpy="-1.57 0 0" xyz=" 0 0.15 0.0"/>
+            <axis xyz="0 0 1"/>
+            <dynamics damping="0.0" friction="0.0"/>
+            <limit effort="1000" lower="-1e06" upper="1e06" velocity="1000"/>
+        </joint>
+
+        <link name="left_wheel">
+            <inertial>
+                <mass value="${mass_lr}"/>
+                <inertia ixx="0.000001" ixy="0"         ixz="0" 
+                                        iyy="0.000001"  iyz="0" 
+                                                        izz="${inertia_lr}"/>
+            </inertial>
+            <visual>
+                <origin rpy="0 0 0" xyz="0 0 0.0"/>
+                <geometry>
+                     <!--cylinder length="0.05" radius="${radius}"/-->
+		    <box size="${radius*2}  ${radius} 0.02" />
+                </geometry>
+            </visual>
+
+        </link>
+
+        <joint name="z_right_wheel_joint" type="revolute">
+            <parent link="trunk"/>
+            <child link="right_wheel"/>
+            <origin rpy="1.57 0 0" xyz=" 0 -0.15 0.0"/>
+            <axis xyz="0 0 1"/>
+            <dynamics damping="0.0" friction="0.0"/>
+            <limit effort="1000" lower="-1e06" upper="1e06" velocity="1000"/>
+        </joint>
+
+        <link name="right_wheel">
+            <inertial>
+                <mass value="${mass_lr}"/>
+                <inertia ixx="0.000001" ixy="0" ixz="0" iyy="0.000001" iyz="0" izz="${inertia_lr}"/>
+            </inertial>
+            <visual>
+                <origin rpy="0 0 0" xyz="0 0 0.0"/>
+                <geometry>
+                      <!--cylinder length="0.05" radius="${radius}"/-->
+		    <box size="${radius*2}  ${radius} 0.02" />
+                </geometry>
+            </visual>
+  
+        </link>
+
+        <joint name="z_front_wheel_joint" type="revolute">
+            <parent link="trunk"/>
+            <child link="front_wheel"/>
+            <origin rpy="0.0 1.57 0" xyz=" 0.2 0.0 0.0"/>
+            <axis xyz="0 0 1"/>
+            <dynamics damping="0.0" friction="0.0"/>
+            <limit effort="1000" lower="-1e06" upper="1e06" velocity="1000"/>
+        </joint>
+
+        <link name="front_wheel">
+            <inertial>
+                <mass value="${mass_fh}"/>
+                <inertia ixx="0.000001" ixy="0" ixz="0" iyy="0.000001" iyz="0" izz="${inertia_fh}"/>
+            </inertial>
+            <visual>
+                <origin rpy="0 0 0" xyz="0 0 0.0"/>
+                <geometry>
+                    <!--cylinder length="0.05" radius="${radius}"/-->
+		    <box size="${radius*2}  ${radius} 0.02" />
+                </geometry>
+            </visual>
+ 
+        </link>
+
+
+        <joint name="z_back_wheel_joint" type="revolute">
+            <parent link="trunk"/>
+            <child link="back_wheel"/>
+            <origin rpy="0 -1.57 0" xyz=" -0.2 0.0 0.0"/>
+            <axis xyz="0 0 1"/>
+            <dynamics damping="0.0" friction="0.0"/>
+            <limit effort="1000" lower="-1e06" upper="1e06" velocity="1000"/>
+        </joint>
+
+        <link name="back_wheel">
+            <inertial>
+                <mass value="${mass_fh}"/>
+                <inertia ixx="0.000001" ixy="0" ixz="0" iyy="0.000001" iyz="0" izz="${inertia_fh}"/>
+            </inertial>
+            <visual>
+                <origin rpy="0 0 0" xyz="0 0 0.0"/>
+                <geometry>
+                    <!--cylinder length="0.05" radius="${radius}"/-->
+		    <box size="${radius*2}  ${radius} 0.02" />
+                </geometry>
+            </visual>
+            
+        </link>
+
+        <xacro:flywheel_transmission/>
+        <xacro:flywheel_gazebo/>
+
+    </xacro:macro>
+</robot>

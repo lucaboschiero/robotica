@@ -1,0 +1,69 @@
+﻿ros_impedance_controller:
+  type: ros_impedance_controller/Controller
+  joints:
+    - lf_bs_joint
+    - rf_bs_joint
+    - lh_bs_joint
+    - rh_bs_joint
+    - lf_upper_leg_joint
+    - rf_upper_leg_joint
+    - lh_upper_leg_joint
+    - rh_upper_leg_joint
+    - lf_lower_leg_joint
+    - rf_lower_leg_joint
+    - lh_lower_leg_joint
+    - rh_lower_leg_joint
+    - lf_pre_wheel_joint
+    - rf_pre_wheel_joint
+    - lh_pre_wheel_joint
+    - rh_pre_wheel_joint
+    - lf_wheel_joint
+    - rf_wheel_joint
+    - lh_wheel_joint
+    - rh_wheel_joint
+
+
+  gains:
+      lf_bs_joint: {p: 15.0, i: 0.0, d: 1.1}
+      rf_bs_joint: {p: 15.0, i: 0.0, d: 1.1}
+      lh_bs_joint: {p: 15.0, i: 0.0, d: 1.1}
+      rh_bs_joint: {p: 15.0, i: 0.0, d: 1.1}
+      lf_upper_leg_joint: {p: 15.0, i: 0.0, d: 1.1}
+      rf_upper_leg_joint: {p: 15.0, i: 0.0, d: 1.1}
+      lh_upper_leg_joint: {p: 15.0, i: 0.0, d: 1.1}
+      rh_upper_leg_joint: {p: 15.0, i: 0.0, d: 1.1}
+      lf_lower_leg_joint: {p: 15.0, i: 0.0, d: 1.1}
+      rf_lower_leg_joint: {p: 15.0, i: 0.0, d: 1.1}
+      lh_lower_leg_joint: {p: 15.0, i: 0.0, d: 1.1}
+      rh_lower_leg_joint: {p: 15.0, i: 0.0, d: 1.1}
+      lf_pre_wheel_joint: {p: 15.0, i: 0.0, d: 1.1}
+      rf_pre_wheel_joint: {p: 15.0, i: 0.0, d: 1.1}
+      lh_pre_wheel_joint: {p: 15.0, i: 0.0, d: 1.1}
+      rh_pre_wheel_joint: {p: 15.0, i: 0.0, d: 1.1}
+      lf_wheel_joint: {p: 15.0, i: 0.0, d: 1.1}
+      rf_wheel_joint: {p: 15.0, i: 0.0, d: 1.1}
+      lh_wheel_joint: {p: 15.0, i: 0.0, d: 1.1}
+      rh_wheel_joint: {p: 15.0, i: 0.0, d: 1.1}
+    
+  home:
+      lf_bs_joint: 0.0
+      rf_bs_joint: 0.0
+      lh_bs_joint: 0.0
+      rh_bs_joint: 0.0
+      lf_upper_leg_joint: 0.0
+      rf_upper_leg_joint: 0.0
+      lh_upper_leg_joint: 0.0
+      rh_upper_leg_joint: 0.0
+      lf_lower_leg_joint: 0.0
+      rf_lower_leg_joint: 0.0
+      lh_lower_leg_joint: 0.0
+      rh_lower_leg_joint: 0.0
+      lf_pre_wheel_joint: 0.0
+      rf_pre_wheel_joint: 0.0
+      lh_pre_wheel_joint: 0.0
+      rh_pre_wheel_joint: 0.0
+      lf_wheel_joint: 0.0
+      rf_wheel_joint: 0.0
+      lh_wheel_joint: 0.0
+      rh_wheel_joint: 0.0
+    

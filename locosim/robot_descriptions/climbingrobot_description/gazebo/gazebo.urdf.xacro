@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+
+<robot xmlns:xacro="http://ros.org/wiki/xacro">
+<xacro:arg name="task_period" default="0.001" />
+<xacro:arg name="robot_name" default="climbingrobot" />
+
+	<gazebo>
+		<plugin name="gazebo_ros_controller_manager" filename="libgazebo_ros_control.so">
+   
+			<!-- if task_period is smaller than sim max_step_size (in world file) it is clamped to that value!!!!!!-->
+			<robotNamespace>/$(arg robot_name)</robotNamespace>
+			<robotSimType>gazebo_ros_control/DefaultRobotHWSim</robotSimType>
+			<legacyModeNS>true</legacyModeNS>
+                        <controlPeriod>$(arg task_period)</controlPeriod>
+
+		</plugin>
+
+	
+	</gazebo>
+
+</robot>
+

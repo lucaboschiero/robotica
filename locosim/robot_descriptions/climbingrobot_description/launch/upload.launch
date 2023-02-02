@@ -1,0 +1,33 @@
+<?xml version="1.0" ?>
+<launch>
+       <arg name="task_period" default="0.004"/>
+       <arg name="robot_name" default="climbingrobot"/>
+
+       <arg name="spawn_x" default="0."/>	
+       <arg name="spawn_y" default="0."/>	
+       <arg name="spawn_z" default="20."/>	
+
+       <arg name="spawn_2x" default="0."/>	
+       <arg name="spawn_2y" default="5."/>	
+       <arg name="spawn_2z" default="20"/>	
+
+
+        <!-- send hyq urdf to param server -->
+        <param name="robot_description" command="$(find xacro)/xacro --inorder '$(find climbingrobot_description)/urdf/$(arg robot_name).xacro' 
+						task_period:=$(arg task_period)  anchorX:=$(arg spawn_x)  anchorY:=$(arg spawn_y) anchorZ:=$(arg spawn_z)  anchor2X:=$(arg spawn_2x)  anchor2Y:=$(arg spawn_2y)  anchor2Z:=$(arg spawn_2z)"/>
+
+
+        <!-- send hyq semantic description srdf to param server -->
+        <param name="robot_semantic_description" command="$(find xacro)/xacro --inorder '$(find climbingrobot_description)/urdf/$(arg robot_name).xacro'  " />
+
+
+
+	<!--  load climb wall into param server-->	
+	<param name="climb_wall" command="$(find xacro)/xacro --inorder '$(find climbingrobot_description)/urdf/climb_wall.xacro'  anchorZ:=$(arg spawn_z)"/>
+
+
+        
+
+
+</launch>
+

@@ -1,0 +1,126 @@
+<?xml version="1.0" ?>
+<robot name="starbot" xmlns:xacro="http://ros.org/wiki/xacro">
+    
+    <!--- new_gazebo_version should be false by default because pinocchio needs it!-->
+    <xacro:arg name="robot_name" default="starbot"/> 
+    <xacro:arg name="new_gazebo_version" default="false"/>	
+
+
+    <xacro:include filename="$(find starbot_description)/gazebo/gazebo.urdf.xacro">
+        <xacro:arg name="task_period" value="$(arg task_period)"/>
+	<xacro:arg name="robot_name" value="$(arg robot_name)"/>
+    </xacro:include>
+
+    <xacro:include filename="$(find starbot_description)/urdfs/leg.xacro"/>
+
+    <!-- BASE LINK -->
+    <!-- floating type is supported in older versions of Gazebo. In new Gazebo if a link has no parent, it is supposed to be attached to a floating joint -->
+
+    <xacro:unless value="$(arg new_gazebo_version)">  
+        <!-- Floating-base Joint -->
+        <link name="world"/>
+        <joint name="floating_base_joint" type="floating" >
+            <origin rpy="0 0 0" xyz="0 0 0"/>
+            <parent link="world"/>
+            <child link="base_link"/>
+        </joint>
+    </xacro:unless>
+
+    <link name="base_link" />    
+    <joint name="floating_base" type="fixed">
+        <origin rpy="0 0 0" xyz="0 0 0"/>
+        <parent link="base_link"/>
+        <child link="trunk"/>
+    </joint>
+
+
+
+    
+    <link name="trunk">
+        <inertial>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <mass value="10.0"/>
+        <inertia ixx="0.16574" ixy="0" ixz="0" iyy="0.16574" iyz="0" izz="0.24057"/>
+      </inertial>
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+           <mesh filename="package://starbot_description/meshes/stl/octagon.stl"/>
+        </geometry>
+        <material name="yellow">
+        	<color rgba="0.8 0.6 0.0 1.0"/>
+        </material>
+      </visual>
+      <collision>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="package://starbot_description/meshes/stl/octagon.stl"/>
+            </geometry>
+        </collision>
+     
+
+    </link>
+
+    <!-- if we imagine to place a line between the two positive direction of axis x and y -->
+    <!-- 
+      
+      legs are align with axis x and y as shown below 
+      
+          is right?
+             |
+     y       |        x
+       o     |     o
+    	o    |    o
+    	 o___|___o
+    	 |   |   |
+  _______|___|___|_________ is front?
+         |   |   |
+    	 |___|___|
+    	 o   |   o
+    	o    |    o
+       o     |     o 
+    -x       |       -y
+    
+    
+    -->
+    
+    
+    <!-- LEFT FRONT LEG = leg align with axis y -->
+     <xacro:leg
+    	name="lf"
+    	parent="trunk"
+    	is_front="true"
+    	is_right="false"
+    	robot_name="$(arg robot_name)">
+    </xacro:leg>
+
+    <!-- RIGHT FRONT LEG = leg align with axis x -->
+    <xacro:leg
+    	name="rf"
+    	parent="trunk"
+    	is_front="true"
+    	is_right="true"
+    	robot_name="$(arg robot_name)">
+    </xacro:leg>
+
+    <!-- LEFT HIND LEG = leg align with axis neg x -->
+     <xacro:leg
+    	name="lh"
+    	parent="trunk"
+    	is_front="false"
+    	is_right="false"
+    	robot_name="$(arg robot_name)">
+    </xacro:leg>
+
+    <!-- RIGHT HIND LEG = leg align with axis neg y -->
+    <xacro:leg
+    	name="rh"
+    	parent="trunk"
+    	is_front="false"
+    	is_right="true"
+    	robot_name="$(arg robot_name)">
+    </xacro:leg>
+
+
+    
+</robot>

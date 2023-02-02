@@ -1,0 +1,24 @@
+<?xml version="1.0" ?>
+<launch>
+
+	<arg name="gui" default="true"/>
+	<arg name="rviz_conf" default="$(find hyq_description)/rviz/hyq_model_tf.rviz"/>
+
+	<!-- send hyq urdf to param server and spawn it -->
+	<include file="$(find hyq_description)/launch/upload.launch">
+	</include>
+
+        <!-- joint_state_publisher publish joint states from sliders-->
+        <node name="joint_state_publisher" pkg="joint_state_publisher_gui" type="joint_state_publisher_gui"/>
+
+	<node name="robot_state_publisher" pkg="robot_state_publisher"
+		type="robot_state_publisher" respawn="true">
+		<param name="publish_frequency" value="200" />
+		<param name="rate" value="200" />
+	</node>
+
+	<!-- run rviz -->
+	<node name="rviz" pkg="rviz" type="rviz" args="-d $(arg rviz_conf) -f trunk"/>
+
+</launch>
+
