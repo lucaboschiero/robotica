@@ -8,7 +8,11 @@
 #include <Eigen/Dense>
 #include <realtime_tools/realtime_publisher.h>
 
-typedef  Eigen::Matrix<double, 6, 1> JointStateVector;
+using namespace std;
+using namespace Eigen;
+
+typedef  Matrix<double, 6, 1> JointStateVector;
+typedef  Matrix<double, 10, 3> Matrix103d;
 
 
 // Methods
@@ -31,6 +35,13 @@ double  loop_frequency = 1000.;
 ros::Publisher pub_des_jstate;
 sensor_msgs::JointState jointState_msg_sim;
 std_msgs::Float64MultiArray jointState_msg_robot;
+
+
+bool homing();
+bool moveTo(Vector3d pos_iniziale,Vector3d pos_blocchetto);
+bool grasp();
+void motionPlan(Vector3d pos_blocchetto,int classe);
+
 
 bool real_robot = true;
 
