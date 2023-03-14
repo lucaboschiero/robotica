@@ -50,6 +50,7 @@ add_message_files(
   FILES
   Coord.msg
   Points.msg
+  PosRobot.msg
 )
 
 ## Generate services in the 'srv' folder

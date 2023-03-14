@@ -3,6 +3,7 @@
 #include <iostream>
 #include <cmath>
 #include "include/ur5kinematics.h"
+#include "include/circlecheck.h"
 
 using namespace std ;
 using namespace Eigen ;
@@ -100,18 +101,15 @@ Matrix86d ur5Inverse(Vector3d pe){
               0,0,-1,0,
               0,0,0,1;
 
-        Vector4d pe_homogeneous;
-        pe_homogeneous << pe, 1;
-        Eigen::Vector4d result=R*pe_homogeneous;
-        Vector3d peInv = result.head(3);
+        //Eigen::Vector3d peInv=R*pe;
 
         Matrix4d T60;
-        T60 <<  1,0,0,peInv(0),
-                0,1,0,peInv(1),
-                0,0,1,peInv(2),
+        T60 <<  1,0,0,pe(0),
+                0,1,0,pe(1),
+                0,0,1,pe(2),
                 0,0,0,1;
 
-        Matrix4d T60I=T60;
+        //Matrix4d T60I=T60;
 
         Vector4d mul;
         mul << 0,0,-D(5),1;
@@ -223,7 +221,6 @@ Matrix86d ur5Inverse(Vector3d pe){
                 th1_2, th2_7, th3_7, th4_7, th5_3, th6_3,
                 th1_2, th2_8, th3_8, th4_8, th5_4, th6_4;
 
-        // Th = Th * R.block(0, 0, 6, 4);
         return Th;
 }
 
@@ -300,19 +297,19 @@ Vector3d XD(double t){
 Vector3d XD(Vector3d xe0,Vector3d xef,double t){
         //xe0 << 0.3, 0.3, 0.1;
         //xef << 0.5, 0.5, 0.5;
-        if (t > 1)
+        if (t > TMAX)
                 return xef;
         else
-                return t*xef + (1-t)*xe0;
+                return (t/TMAX)*xef + (1-(t/TMAX))*xe0;
 }
 
 Vector3d Phid(Vector3d phie0,Vector3d phief,double t){
         //phie0 << 0, 0, 0;
         //phief << M_PI/4, M_PI/4, M_PI/4;
-        if (t > 1)
+        if (t > TMAX)
                 return phief;
         else
-                return t*phief + (1-t)*phie0;
+                return (t/TMAX)*phief + (1-(t/TMAX))*phie0;
 }
 
 Vector3d rotm2eulFDR(Matrix3d R){
@@ -320,9 +317,7 @@ Vector3d rotm2eulFDR(Matrix3d R){
     //convert it
     Vector3d eulZYX=R.eulerAngles(2,1,0);
     Vector3d eulXYZ;
-    eulXYZ(2) = eulZYX(0);
-    eulXYZ(1) = eulZYX(1);
-    eulXYZ(0) = eulZYX(2);
+    eulXYZ << eulZYX(2), eulZYX(1), eulZYX(0);
 
     return eulXYZ;
 }
@@ -331,14 +326,10 @@ Matrix3d eul2rotmFDR(Vector3d eulXYZ){
     //the input of eul2rotm is a vector with ZYX coordinates so I need to
     //convert it
     /*
-    Vector3d eulZYX;
     
-    eulZYX(2) = eulXYZ(0);
-    eulZYX(1) = eulXYZ(1);
-    eulZYX(0) = eulXYZ(2);
+    Vector3d eulZYX(eulXYZ(2), eulXYZ(1), eulXYZ(0));
     Matrix3d R = EulerAnglesZYX(eulZYX);
     */
-
     Vector3d eulZYX;
     
     eulZYX(2) = eulXYZ(0);
@@ -357,6 +348,18 @@ Matrix3d eul2rotmFDR(Vector3d eulXYZ){
          c2*s3, c1*c3 + s1*s2*s3, c1*s2*s3 - c3*s1,
          -s2, c2*s1, c1*c2;
     return R;
+    /*
+
+      // Convert to ZYX Euler angles
+    Vector3d eulZYX(eulXYZ(2), eulXYZ(1), eulXYZ(0));
+
+    // Convert to rotation matrix
+    Matrix3d R;
+    R = AngleAxisd(eulZYX(0), Vector3d::UnitZ()) *
+        AngleAxisd(eulZYX(1), Vector3d::UnitY()) *
+        AngleAxisd(eulZYX(2), Vector3d::UnitX());
+
+    return R;*/
 }
 
 Vector3d computeOrientationErrorW(Matrix3d w_R_e, Matrix3d w_R_d){
@@ -458,6 +461,13 @@ Vector6d invDiffKinematiControlComplete(Vector6d q, Vector3d xe, Vector3d xd, Ve
 
         Vector3d error_o = computeOrientationErrorW(w_R_e, w_R_d);
 
+        
+        if(error_o.norm()>0.1){
+             error_o=0.1*error_o.normalized();   
+        }
+        
+        //cout<<"Err: "<<error_o.transpose()<<endl;
+
         Matrix6d J=ur5Jac(q);
         double psid = phid(0);//psi
         double thetad = phid(1); //theta
@@ -472,7 +482,8 @@ Vector6d invDiffKinematiControlComplete(Vector6d q, Vector3d xe, Vector3d xd, Ve
         Vector3d omega_dot = T*phiddot;
 
         Vector3d v1=vd+Kp*(xd-xe);
-        Vector3d v2=omega_dot+Kphi*error_o;
+        //Vector3d v2=omega_dot+Kphi*error_o;
+        Vector3d v2=Kphi*error_o;
 
         Vector6d v1v2;
         v1v2 << v1(0),v1(1),v1(2),v2(0),v2(1),v2(2);
@@ -487,8 +498,7 @@ Vector6d invDiffKinematiControlComplete(Vector6d q, Vector3d xe, Vector3d xd, Ve
 
 
 MatrixXd invDiffKinematicControlSimComplete(Vector3d xe0,Vector3d xef,Vector3d phie0,Vector3d phief,Vector6d TH0, Matrix3d Kp, Matrix3d Kphi, double minT, double maxT, double Dt){
-        cout<<"entra1\n";
-        //cout<<Dt<<endl;
+        
         int L=(int)(maxT-minT)/Dt+1;
         
         VectorXd T;
@@ -510,18 +520,38 @@ MatrixXd invDiffKinematicControlSimComplete(Vector3d xe0,Vector3d xef,Vector3d p
               Vector3d xe=ur5Direct(qk);
               Vector3d phie=rotm2eulFDR(Re);
 
-              //cout<<phie.transpose()<<endl;
+              /*  
+              cout<<"xe: "<<xe.transpose()<<endl;
+              cout<<"phie: "<<phie.transpose()<<endl;
+              cout<<"xe0: "<<xe0.transpose()<<endl;  
+              cout<<"phie0"<<phie0.transpose()<<endl;
+              cout<<Re<<endl;
+              */
 
               Vector3d vd;
-              vd << (XD(xe0,xef,T(t))-XD(xe0,xef,T(t)-Dt))/Dt;
+              vd = (XD(xe0,xef,T(t))-XD(xe0,xef,T(t)-Dt))/Dt;
               
               Vector3d phiddot;
-              phiddot << (Phid(phie0,phief,T(t))-Phid(phie0,phief,T(t)-Dt))/Dt;
+              phiddot = (Phid(phie0,phief,T(t))-Phid(phie0,phief,T(t)-Dt))/Dt;
 
               Vector6d dotqk = invDiffKinematiControlComplete(qk, xe, XD(xe0,xef,T(t)), vd, Re, Phid(phie0,phief,T(t)),phiddot, Kp, Kphi);
                
 
               Vector6d qk1 = qk + dotqk*Dt;
+
+              //cout<<ur5Direct(qk1).transpose()<<endl;
+
+              cout<<"prima "<<qk1.transpose()<<endl;
+
+              Vector3d p_temp=ur5Direct(qk1);
+              double p_temp_z=p_temp(2);
+        
+              Vector2d p_check=checkCircleandTranslate(Vector2d(p_temp(0),p_temp(1)));
+              Vector3d p_temp1;
+              p_temp1 << p_check(0),p_check(1),p_temp_z;
+
+              qk1=ur5Inverse(p_temp1).row(7);
+              cout<<"dopo "<<qk1.transpose()<<endl;
 
                 //cout<<"funz\n"; 
                 //ultima parte
@@ -571,7 +601,7 @@ int main(){
 
         cout<<"Direct kinematics\n";
         Vector6d Th;
-        Th << -0.3223527113543909, -0.7805794638446351, -2.5675506591796875, -1.6347843609251917, -1.5715253988849085, -1.0017417112933558;
+        Th << -0.32 ,  -0.78002  ,  -2.56007  , -1.63004 ,    -1.57004 , 3.49009;
 
         Vector3d pe=ur5Direct(Th);
 
@@ -580,12 +610,12 @@ int main(){
         cout<<"Inverse kinematics\n";
 
         Vector3d peIniziale;
-        peIniziale << 0.151846, -0.191179,  0.450473;   //-0.3223527113543909, -0.7805794638446351, -2.5675506591796875, -1.6347843609251917, -1.5715253988849085, -1.0017417112933558
+        peIniziale << 0.15, -0.19,  0.45;   //-0.3223527113543909, -0.7805794638446351, -2.5675506591796875, -1.6347843609251917, -1.5715253988849085, -1.0017417112933558
         //peIniziale << 0.3, 0.3, 0.1;
 
 
         Vector3d pe1;
-        pe1 << 0.5, 0.4, 0.85;   //3.51465 -0.760302   1.84325   1.98053   1.20247  -4.69833
+        pe1 << 0.3, 0.5, 0.85;   //3.51465 -0.760302   1.84325   1.98053   1.20247  -4.69833
 
         Matrix86d Thresult=ur5Inverse(peIniziale);
 
@@ -627,7 +657,7 @@ int main(){
         cout<<differentialTH<<"\n";
 
         cout<<ur5Direct(differentialTH.row(differentialTH.rows()-1))<<endl;
-        cout<<differentialTH.rows()<<endl;
+        //cout<<differentialTH.rows()<<endl;
         //cout<<differentialTH.row(differentialTH.rows()-1)<<endl;
 
 }

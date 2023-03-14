@@ -6,29 +6,33 @@
 #include <sensor_msgs/JointState.h>
 #include <std_msgs/Float64MultiArray.h>
 #include <Eigen/Dense>
+#include <Eigen/Core>
 #include <realtime_tools/realtime_publisher.h>
 
 using namespace std;
 using namespace Eigen;
 
-typedef  Matrix<double, 6, 1> JointStateVector;
-typedef  Matrix<double, 10, 3> Matrix103d;
+typedef  Matrix<double, 6, 1> Vector6d;
+typedef  Matrix<double, 11, 3> Matrix113d;
 
 
 // Methods
-void send_des_jstate(const JointStateVector & joint_pos);
-JointStateVector secondOrderFilter(const JointStateVector & input, const double rate, const double settling_time);
+void send_des_jstate(const Vector6d & joint_pos);
+Vector6d secondOrderFilter(const Vector6d & input, const double rate, const double settling_time);
 
 // Variables
-JointStateVector q_des = JointStateVector::Zero();
-JointStateVector q_des0 = JointStateVector::Zero();
-JointStateVector qd_des = JointStateVector::Zero();
-JointStateVector tau_ffwd = JointStateVector::Zero();
-JointStateVector filter_1 = JointStateVector::Zero();
-JointStateVector filter_2 = JointStateVector::Zero();
+Vector6d q_des = Vector6d::Zero();
+Vector6d q_des0 = Vector6d::Zero();
+Vector6d qd_des = Vector6d::Zero();
+Vector6d tau_ffwd = Vector6d::Zero();
+Vector6d filter_1 = Vector6d::Zero();
+Vector6d filter_2 = Vector6d::Zero();
+Matrix113d detected_pos_blocchetti=Matrix113d::Zero(10,3);
+Vector3d shift=Vector3d::Zero();
 
 double  loop_time = 0.;
 double  loop_frequency = 1000.;
+bool apri = true;
 
 // Publishers
 //std::shared_ptr<realtime_tools::RealtimePublisher<sensor_msgs::JointState> > pub_des_jstate_sim_rt;
@@ -36,13 +40,14 @@ ros::Publisher pub_des_jstate;
 sensor_msgs::JointState jointState_msg_sim;
 std_msgs::Float64MultiArray jointState_msg_robot;
 
-
+//void detect(const custom_msgs::Coord::ConstPtr& msg);
 bool homing();
-bool moveTo(Vector3d pos_iniziale,Vector3d pos_blocchetto);
-bool grasp();
+Vector6d moveTo(Vector3d pos_iniziale,Vector3d pos_finale, Vector3d rot_iniziale, Vector3d rot_finale);
+bool grasp(Vector6d q);
 void motionPlan(Vector3d pos_blocchetto,int classe);
 
 
 bool real_robot = true;
+int use_gripper = 1;        //0 -> no gripper    1-> soft gripper     2-> 3-finger gripper
 
 #endif

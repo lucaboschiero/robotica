@@ -4,11 +4,11 @@
 #define SCALE_FACTOR 10
 #define OMEGA 1
 #define SAMPLES 500
-#define DELTAT 0.002
+#define DELTAT 0.02
 #define LAPS 5.0
 #define TMIN 0.0
 #define TMAX 1 
-#define HTAVOLO 0.85                    //per invDiffKinematicControlSimComplete
+#define HTAVOLO 0.75                    //per invDiffKinematicControlSimComplete
 //#define TMAX 2*M_PI/OMEGA*LAPS    per invDiffKinematicControlSim
 
 
@@ -19,6 +19,7 @@ using namespace std;
 using namespace Eigen;
 
 typedef Matrix<double,6,1> Vector6d;
+typedef Matrix<double,8,1> Vector8d;
 typedef Matrix<double,8,6> Matrix86d;
 typedef Matrix<double,6,6> Matrix6d;
 typedef Matrix<double,3,6> Matrix36d;
@@ -41,6 +42,7 @@ Matrix4d T21m;
 Matrix4d T10m;
 
 Matrix3d Re;
+Vector6d pos_attuale;
 
 Matrix4d T10(double th);
 Matrix4d T21(double th);
