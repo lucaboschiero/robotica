@@ -28,8 +28,8 @@ typedef Matrix<double,6,3> Matrix63d;
 
 
 Vector3d xe0,phie0,xef,phief;
-Matrix3d Kp,Kphi;
-
+const Matrix3d Kp = Matrix3d::Identity()*5;
+const Matrix3d Kphi = Matrix3d::Identity()*10;
 
 Vector6d A;
 Vector6d D;

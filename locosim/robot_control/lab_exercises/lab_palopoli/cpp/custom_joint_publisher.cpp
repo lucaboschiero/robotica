@@ -1,10 +1,8 @@
-#include "custom_joint_publisher.h"
+#include "include/custom_joint_publisher.h"
 #include <math.h>
 #include "include/ur5kinematics.h"
 #include <std_msgs/String.h>
 #include <cstring>
-#include <custom_msgs/Coord.h>
-#include <custom_msgs/PosRobot.h>
 #include <iostream>
 
 
@@ -200,46 +198,48 @@ void motionPlan(Vector3d pos_blocchetto,int classe){
   Vector3d posIniziale=ur5Direct(q_des0);
 
   Vector6d q_temp;
-  q_temp=moveTo(posIniziale,pos_blocchetto,Vector3d(M_PI,0.0,0.0),Vector3d(M_PI,0.0,0.0));  //muovo in base ai cubetti nella matrice
-  
+  q_temp=moveTo(posIniziale,pos_blocchetto-up_down_di,Vector3d(M_PI,0.0,0.0),Vector3d(M_PI,0.0,0.0));  //muovo in base ai cubetti nella matrice
+  sleep(1);
+  q_temp=moveTo(pos_blocchetto-up_down_di,pos_blocchetto,Vector3d(M_PI,0.0,0.0),Vector3d(M_PI,0.0,0.0));
+  sleep(1);
 
   apri=false;                 //chiudi gripper
   while(!grasp(q_temp));
 
-  sleep(1);
-  q_temp=moveTo(ur5Direct(q_temp),ur5Direct(q_temp)-Vector3d(0.0,0.0,0.1), Vector3d(M_PI,0.0,0.0), Vector3d(M_PI,0.0,0.0));  //alzo il cubetto
+  sleep(2);
+  q_temp=moveTo(ur5Direct(q_temp),ur5Direct(q_temp)-up_down_di, Vector3d(M_PI,0.0,0.0), Vector3d(M_PI,0.0,0.0));  //alzo il cubetto
   sleep(1);
 
   switch(classe){
     case 1:
-      q_temp=moveTo(ur5Direct(q_temp),Vector3d(0.2,0.3,HTAVOLO-0.15), Vector3d(M_PI,0.0,0.0), Vector3d(M_PI,0.0,0.0));        //muovo da pos_blocchetto a final stand (non so dove sia ma vabbe)
+      q_temp=moveTo(ur5Direct(q_temp),final_stand, Vector3d(M_PI,0.0,0.0), Vector3d(M_PI,0.0,0.0));        //muovo da pos_blocchetto a final stand (non so dove sia ma vabbe)
     break;
     case 2:
-      q_temp=moveTo(pos_blocchetto-Vector3d(0.0,0.0,0.2),Vector3d(0.2,0.5,HTAVOLO-0.15), Vector3d(M_PI,0.0,0.0), Vector3d(M_PI,0.0,0.0));
+      q_temp=moveTo(ur5Direct(q_temp),final_stand, Vector3d(M_PI,0.0,0.0), Vector3d(M_PI,0.0,0.0));
     break;
     case 3:
-      q_temp=moveTo(pos_blocchetto-Vector3d(0.0,0.0,0.2),Vector3d(0.2,0.5,HTAVOLO-0.15), Vector3d(M_PI,0.0,0.0), Vector3d(M_PI,0.0,0.0));
+      q_temp=moveTo(ur5Direct(q_temp),final_stand, Vector3d(M_PI,0.0,0.0), Vector3d(M_PI,0.0,0.0));
     break;
     case 4:
-      q_temp=moveTo(pos_blocchetto-Vector3d(0.0,0.0,0.2),Vector3d(0.2,0.5,HTAVOLO-0.15), Vector3d(M_PI,0.0,0.0), Vector3d(M_PI,0.0,0.0));
+      q_temp=moveTo(ur5Direct(q_temp),final_stand, Vector3d(M_PI,0.0,0.0), Vector3d(M_PI,0.0,0.0));
     break;
     case 5:
-      q_temp=moveTo(pos_blocchetto-Vector3d(0.0,0.0,0.2),Vector3d(0.2,0.5,HTAVOLO-0.15), Vector3d(M_PI,0.0,0.0), Vector3d(M_PI,0.0,0.0));
+      q_temp=moveTo(ur5Direct(q_temp),final_stand, Vector3d(M_PI,0.0,0.0), Vector3d(M_PI,0.0,0.0));
     break;
     case 6:
-      q_temp=moveTo(pos_blocchetto-Vector3d(0.0,0.0,0.2),Vector3d(0.2,0.5,HTAVOLO-0.15), Vector3d(M_PI,0.0,0.0), Vector3d(M_PI,0.0,0.0));
+      q_temp=moveTo(ur5Direct(q_temp),final_stand, Vector3d(M_PI,0.0,0.0), Vector3d(M_PI,0.0,0.0));
     break;
     case 7:
-      q_temp=moveTo(pos_blocchetto-Vector3d(0.0,0.0,0.2),Vector3d(0.2,0.5,HTAVOLO-0.15), Vector3d(M_PI,0.0,0.0), Vector3d(M_PI,0.0,0.0));
+      q_temp=moveTo(ur5Direct(q_temp),final_stand, Vector3d(M_PI,0.0,0.0), Vector3d(M_PI,0.0,0.0));
     break;
     case 8:
-      q_temp=moveTo(pos_blocchetto-Vector3d(0.0,0.0,0.2),Vector3d(0.2,0.5,HTAVOLO-0.15), Vector3d(M_PI,0.0,0.0), Vector3d(M_PI,0.0,0.0));
+      q_temp=moveTo(ur5Direct(q_temp),final_stand, Vector3d(M_PI,0.0,0.0), Vector3d(M_PI,0.0,0.0));
     break;
     case 9:
-      q_temp=moveTo(pos_blocchetto-Vector3d(0.0,0.0,0.2),Vector3d(0.2,0.5,HTAVOLO-0.15), Vector3d(M_PI,0.0,0.0), Vector3d(M_PI,0.0,0.0));
+      q_temp=moveTo(ur5Direct(q_temp),final_stand, Vector3d(M_PI,0.0,0.0), Vector3d(M_PI,0.0,0.0));
     break;
     case 10:
-      q_temp=moveTo(pos_blocchetto-Vector3d(0.0,0.0,0.2),Vector3d(0.2,0.5,HTAVOLO-0.15), Vector3d(M_PI,0.0,0.0), Vector3d(M_PI,0.0,0.0));
+      q_temp=moveTo(ur5Direct(q_temp),final_stand, Vector3d(M_PI,0.0,0.0), Vector3d(M_PI,0.0,0.0));
     break;
   }
 
@@ -291,7 +291,7 @@ Vector6d moveTo(Vector3d pos_iniziale,Vector3d pos_finale, Vector3d rot_iniziale
 }
 
 bool grasp(Vector6d q){
-  sleep(1);
+  sleep(2);
   switch(apri){
     case false:
       send_des_jstate(q,open_gripper(0));
@@ -341,12 +341,10 @@ int main(int argc, char **argv)
 
 
   //globali
-  Kp = Matrix3d::Identity()*5;
-  Kphi = Matrix3d::Identity()*10;
   //q_des0 << -0.3223527113543909, -0.7805794638446351, -2.5675506591796875, -1.6347843609251917, -1.5715253988849085, -1.0017417112933558;
   //q_des0 << -0.32 ,  -0.78002  ,  -2.56007  , -1.63004 ,    -1.57004 , 3.49009;
-  q_des0 << -0.321997 ,  -0.919283,   -2.61359 ,       -1.17952 ,       -1.5708 ,  -1.2488;
-  shift=Vector3d(0.5,0.35,0.12);
+  
+  q_des0 << -0.321997,-0.919283,-2.61359,-1.17952,-1.5708,-1.2488;
 
 
 
@@ -356,11 +354,11 @@ int main(int argc, char **argv)
 
   //ros::Subscriber subPos=n.subscribe("/posattualerobot", 1000, posAttuale);
   
-  detected_pos_blocchetti <<  0.5,0.35,0.85,
+  detected_pos_blocchetti <<  0.8,0.35,0.85,
                               0.0,0.0,0.0,
                               0.0,0.0,0.0,
                               0.0,0.0,0.0;
-                              
+                             
                          
   cout<<detected_pos_blocchetti<<endl;
 
