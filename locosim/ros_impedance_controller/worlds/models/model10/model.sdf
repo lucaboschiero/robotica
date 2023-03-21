@@ -1,25 +1,67 @@
 <?xml version="1.0" ?>
 <sdf version="1.4">
 
-<model name="cone">
-        <static>true</static>
-	<link name="link">
-		<collision name="collision">
-			<geometry>
-		    	    <mesh>
-				<uri>model://model10/meshes/X2-Y2-Z2-FILLET.stl</uri>
-			    </mesh>	   
-			</geometry>
-		</collision>
-			   
-		<visual name="visual">
-			<geometry>
-			    <mesh>
-				<uri>model://model10/meshes/X2-Y2-Z2-FILLET.stl</uri>
-			    </mesh>
-			</geometry>
-		</visual>
-	</link>
-</model>
-</sdf>
+<physics type="ode">
 
+    <ode>
+ 
+       	<constraints>
+          <contact_max_correcting_vel>0.1</contact_max_correcting_vel>
+          <contact_surface_layer>0.0001</contact_surface_layer>
+        </constraints>
+
+    </ode>
+	<max_contacts>10</max_contacts>
+	</physics>
+	
+	<model name="x2-y2-z2-fillet">
+		<link name="link">
+		   	<inertial> 
+				<mass>0.1</mass>
+				<inertia> 
+				<ixx>0.00005991</ixx>       <!-- for a box: ixx = 0.083 * mass * (y*y + z*z) -->
+				<ixy>0.0</ixy>         <!-- for a box: ixy = 0 -->
+				<ixz>0.0</ixz>         <!-- for a box: ixz = 0 -->
+				<iyy>0.00005991</iyy>       <!-- for a box: iyy = 0.083 * mass * (x*x + z*z) -->
+				<iyz>0.0</iyz>         <!-- for a box: iyz = 0 -->
+				<izz>0.00006589</izz>       <!-- for a box: izz = 0.083 * mass * (x*x + y*y) -->
+				</inertia>
+		    </inertial>
+			 <collision name="collision">
+				
+                
+<geometry>
+    <mesh>
+        <uri>model://model10/meshes/X2-Y2-Z2-FILLET.stl</uri>
+    </mesh>
+</geometry>
+                
+                
+		    </collision>
+		    <visual name="top_visual">
+				<material>  
+					<ambient>235 133 31 1</ambient>
+					<diffuse>255 153 51 1</diffuse>
+					<specular>0 0 0 1</specular>
+					<emissive>0 0 0 1</emissive>
+				</material> 
+				<geometry>
+					<mesh>
+						<uri>model://model10/meshes/X2-Y2-Z2-FILLET.stl</uri>
+					</mesh>
+				</geometry>
+		    </visual>
+
+			<mu1>10</mu1>
+			<mu2>10</mu2>
+		
+			<kp>100000.0</kp>
+			<kd>10.0</kd> 
+			<fdir1>0 0 1</fdir1>
+			<minDepth>0.000</minDepth>
+			<maxVel>0.0</maxVel>
+			<maxContacts>2</maxContacts>
+			
+		</link>
+	</model>
+</sdf>
