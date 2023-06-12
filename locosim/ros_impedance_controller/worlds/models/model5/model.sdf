@@ -1,44 +1,44 @@
 <?xml version="1.0" ?>
 <sdf version="1.4">
 
-<physics type="ode">
+	<physics type="ode">
 
-    <ode>
- 
-       	<constraints>
-          <contact_max_correcting_vel>0.1</contact_max_correcting_vel>
-          <contact_surface_layer>0.0001</contact_surface_layer>
-        </constraints>
+		<ode>
+	 
+			<constraints>
+			  	<contact_max_correcting_vel>0.1</contact_max_correcting_vel>
+			  	<contact_surface_layer>0.0001</contact_surface_layer>
+			</constraints>
 
-    </ode>
-	<max_contacts>10</max_contacts>
+		</ode>
+		<max_contacts>10</max_contacts>
 	</physics>
 	
 	<model name="x1-y3-z2">
 		<link name="link">
 		   	<inertial> 
-				<mass>0.1</mass>
+				<mass>1.5</mass>
 				<inertia>
-				<ixx>0.00010187</ixx>       <!-- for a box: ixx = 0.083 * mass * (y*y + z*z) -->
+				<ixx>0.016185</ixx>       <!-- for a box: ixx = 0.083 * mass * (y*y + z*z) -->
 				<ixy>0.0</ixy>         <!-- for a box: ixy = 0 -->
 				<ixz>0.0</ixz>         <!-- for a box: ixz = 0 -->
-				<iyy>0.00003494</iyy>       <!-- for a box: iyy = 0.083 * mass * (x*x + z*z) -->
+				<iyy>0.006225</iyy>       <!-- for a box: iyy = 0.083 * mass * (x*x + z*z) -->
 				<iyz>0.0</iyz>         <!-- for a box: iyz = 0 -->
-				<izz>0.00008288</izz>       <!-- for a box: izz = 0.083 * mass * (x*x + y*y) -->
+				<izz>0.01245</izz>       <!-- for a box: izz = 0.083 * mass * (x*x + y*y) -->
 				</inertia>
-		    </inertial>
-			 <collision name="collision">
+		    	</inertial>
+			<collision name="collision">
 				
                 
-<geometry>
-    <mesh>
-        <uri>model://model5/meshes/X1-Y3-Z2.stl</uri>
-    </mesh>
-</geometry>
+				<geometry>
+				    <mesh>
+					<uri>model://model5/meshes/X1-Y3-Z2.stl</uri>
+				    </mesh>
+				</geometry>
                 
                 
-		    </collision>
-		    <visual name="top_visual">
+		    	</collision>
+		    	<visual name="top_visual">
 				<material>  
 					<ambient>0 40 150 1</ambient>
 					<diffuse>0 75 190 1</diffuse>
@@ -50,7 +50,7 @@
 						<uri>model://model5/meshes/X1-Y3-Z2.stl</uri>
 					</mesh>
 				</geometry>
-		    </visual>
+		    	</visual>
 
 			
 			<mu1>10</mu1>

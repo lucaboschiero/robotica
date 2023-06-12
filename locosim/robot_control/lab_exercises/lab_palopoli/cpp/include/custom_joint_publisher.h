@@ -10,6 +10,7 @@
 #include <Eigen/Dense>
 #include <Eigen/Core>
 #include <realtime_tools/realtime_publisher.h>
+#include "circlecheck.h"
 
 using namespace std;
 using namespace Eigen;
@@ -32,9 +33,10 @@ Vector6d q_des0 = Vector6d::Zero();
 Matrix113d detected_pos_blocchetti=Matrix113d::Zero(10,3);
 
 
-const Vector3d shift(0.5,0.35,0.17);
-const Vector3d final_stand(0.3,-0.2,0.7);
-const Vector3d up_down_di(0.0,0.0,0.15);
+const Vector3d shift(0.5,0.35,0.12);
+const Vector3d final_stand(-0.4,-0.2,0.73);
+const Vector3d up_down_di(0.0,0.0,0.12);
+const Vector3d pos_intermedia(-0.2,-0.35,0.61);
 
 
 double  loop_time = 0.;

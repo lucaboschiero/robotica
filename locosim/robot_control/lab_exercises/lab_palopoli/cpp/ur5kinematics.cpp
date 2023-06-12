@@ -482,8 +482,8 @@ Vector6d invDiffKinematiControlComplete(Vector6d q, Vector3d xe, Vector3d xd, Ve
         Vector3d omega_dot = T*phiddot;
 
         Vector3d v1=vd+Kp*(xd-xe);
-        Vector3d v2=omega_dot+Kphi*error_o;
-        //Vector3d v2=Kphi*error_o;
+        //Vector3d v2=omega_dot+Kphi*error_o;
+        Vector3d v2=Kphi*error_o;
 
         Vector6d v1v2;
         v1v2 << v1(0),v1(1),v1(2),v2(0),v2(1),v2(2);
@@ -536,7 +536,7 @@ MatrixXd invDiffKinematicControlSimComplete(Vector3d xe0,Vector3d xef,Vector3d p
               //phiddot = (Phid(phie0,phief,T(t))-Phid(phie0,phief,T(t)-Dt))/Dt;
               phiddot = (Phid(phie0,phief,T(t)+Dt)-Phid(phie0,phief,T(t)))/Dt;
 
-              Vector6d dotqk = invDiffKinematiControlComplete(qk, xe, XD(xe0,xef,T(t)), vd, Re, Phid(phie0,phief,T(t)),phiddot, Kp, Kphi);
+              Vector6d dotqk = invDiffKinematiControlComplete(qk, xe, XD(xe0,xef,T(t)+Dt), vd, Re, Phid(phie0,phief,T(t)+Dt),phiddot, Kp, Kphi);
                
 
               Vector6d qk1 = qk + dotqk*Dt;
@@ -546,7 +546,8 @@ MatrixXd invDiffKinematicControlSimComplete(Vector3d xe0,Vector3d xef,Vector3d p
               //cout<<"prima "<<qk1.transpose()<<endl;
 
               Vector3d p_temp=ur5Direct(qk1);
-              double p_temp_z=p_temp(2);
+              //cout<<p_temp.transpose()<<endl;
+              double p_temp_z=check_z(p_temp(2));
         
               Vector2d p_check=checkCircleandTranslate(Vector2d(p_temp(0),p_temp(1)));
               Vector3d p_temp1;

@@ -1,44 +1,42 @@
 <?xml version="1.0" ?>
 <sdf version="1.4">
 
-<physics type="ode">
+	<physics type="ode">
 
-    <ode>
+    		<ode>
  
-       	<constraints>
-          <contact_max_correcting_vel>0.1</contact_max_correcting_vel>
-          <contact_surface_layer>0.0001</contact_surface_layer>
-        </constraints>
+       		<constraints>
+          			<contact_max_correcting_vel>0.1</contact_max_correcting_vel>
+          			<contact_surface_layer>0.0001</contact_surface_layer>
+        		</constraints>
 
-    </ode>
-	<max_contacts>10</max_contacts>
+    		</ode>
+		<max_contacts>10</max_contacts>
 	</physics>
 	
 	<model name="x1-y4-z1">
 		<link name="link">
 		   	<inertial> 
-				<mass>0.1</mass>
+				<mass>1.5</mass>
 				<inertia> 
-				<ixx>0.00014586</ixx>       <!-- for a box: ixx = 0.083 * mass * (y*y + z*z) -->
-				<ixy>0.0</ixy>         <!-- for a box: ixy = 0 -->
-				<ixz>0.0</ixz>         <!-- for a box: ixz = 0 -->
-				<iyy>0.00001996</iyy>       <!-- for a box: iyy = 0.083 * mass * (x*x + z*z) -->
-				<iyz>0.0</iyz>         <!-- for a box: iyz = 0 -->
-				<izz>0.00014185</izz>       <!-- for a box: izz = 0.083 * mass * (x*x + y*y) -->
+					<ixx>0.021165</ixx>       <!-- for a box: ixx = 0.083 * mass * (y*y + z*z) -->
+					<ixy>0.0</ixy>         <!-- for a box: ixy = 0 -->
+					<ixz>0.0</ixz>         <!-- for a box: ixz = 0 -->
+					<iyy>0.00249</iyy>       <!-- for a box: iyy = 0.083 * mass * (x*x + z*z) -->
+					<iyz>0.0</iyz>         <!-- for a box: iyz = 0 -->
+					<izz>0.021165</izz>       <!-- for a box: izz = 0.083 * mass * (x*x + y*y) -->
 				</inertia>
-		    </inertial>
-			 <collision name="collision">
-				
+		    	</inertial>
+			<collision name="collision">	
                 
-<geometry>
-    <mesh>
-        <uri>model://model7/meshes/X1-Y4-Z1.stl</uri>
-    </mesh>
-</geometry>
+				<geometry>
+				    <mesh>
+					<uri>model://model7/meshes/X1-Y4-Z1.stl</uri>
+				    </mesh>
+				</geometry>
                 
-                
-		    </collision>
-		    <visual name="top_visual">
+		    	</collision>
+		    	<visual name="top_visual">
 				<material>  
 					<ambient>235 31 31 1</ambient>
 					<diffuse>255 51 51 1</diffuse>
@@ -50,7 +48,7 @@
 						<uri>model://model7/meshes/X1-Y4-Z1.stl</uri>
 					</mesh>
 				</geometry>
-		    </visual>
+		    	</visual>
 
 			<mu1>10</mu1>
 			<mu2>10</mu2>

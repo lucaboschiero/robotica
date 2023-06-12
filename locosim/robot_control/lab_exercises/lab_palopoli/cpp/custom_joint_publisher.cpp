@@ -6,6 +6,7 @@
 #include <iostream>
 
 
+
 void send_des_jstate(const Vector6d & joint_pos, const Vector3d & gripper_joint)
 {
     //std::cout << "q_des " << joint_pos.transpose() <<" "<<gripper_joint.transpose() << std::endl;
@@ -195,12 +196,27 @@ void posAttuale(const custom_msgs::PosRobot::ConstPtr& msg){
 
 void motionPlan(Vector3d pos_blocchetto,int classe){
 
+  
   Vector3d posIniziale=ur5Direct(q_des0);
+  cout<<posIniziale.transpose()<<endl;
+  posIniziale(1)*=-1;
 
   Vector6d q_temp;
-  q_temp=moveTo(posIniziale,pos_blocchetto-up_down_di,Vector3d(M_PI,0.0,0.0),Vector3d(M_PI,0.0,0.0));  //muovo in base ai cubetti nella matrice
-  sleep(1);
-  q_temp=moveTo(pos_blocchetto-up_down_di,pos_blocchetto,Vector3d(M_PI,0.0,0.0),Vector3d(M_PI,0.0,0.0));
+  /*
+  if(check_right_trajectory(pos_blocchetto)){
+  
+    q_temp=moveTo(posIniziale,pos_intermedia,Vector3d(M_PI,0.,0.),Vector3d(M_PI/2,0.,2.));
+    sleep(1);
+    q_temp=moveTo(ur5Direct(q_temp),pos_blocchetto-up_down_di,Vector3d(M_PI,0.,0.),Vector3d(M_PI/2,0.,2.));    //blocchetto dall'altra parte del tavolo, faccio step intermedio
+  }else{
+    q_temp=moveTo(posIniziale,pos_blocchetto-up_down_di,Vector3d(M_PI,0.,0.),Vector3d(M_PI/2,0.,2.));  //muovo in base ai cubetti nella matrice
+  }
+*/
+  q_temp=moveTo(posIniziale,pos_blocchetto-up_down_di,Vector3d(M_PI,0.,0.),Vector3d(M_PI/2,0.,2.));  //muovo in base ai cubetti nella matrice
+  
+  sleep(2);
+  cout<<ur5Direct(q_temp).transpose()<<endl;
+  q_temp=moveTo(ur5Direct(q_temp),pos_blocchetto,Vector3d(0.,0.0,0.0),Vector3d(0.,0.0,0.0));
   sleep(1);
 
   apri=false;                 //chiudi gripper
@@ -211,42 +227,49 @@ void motionPlan(Vector3d pos_blocchetto,int classe){
   sleep(1);
 
   switch(classe){
+    case 0:
+      q_temp=moveTo(ur5Direct(q_temp),final_stand-up_down_di, Vector3d(0.,0.0,0.0), Vector3d(0.,0.0,0.0)); 
+    break;
     case 1:
-      q_temp=moveTo(ur5Direct(q_temp),final_stand, Vector3d(M_PI,0.0,0.0), Vector3d(M_PI,0.0,0.0));        //muovo da pos_blocchetto a final stand (non so dove sia ma vabbe)
+      q_temp=moveTo(ur5Direct(q_temp),final_stand-up_down_di, Vector3d(0.,0.0,0.0), Vector3d(0.,0.0,0.0));        //muovo da pos_blocchetto a final stand (non so dove sia ma vabbe)
     break;
     case 2:
-      q_temp=moveTo(ur5Direct(q_temp),final_stand, Vector3d(M_PI,0.0,0.0), Vector3d(M_PI,0.0,0.0));
+      q_temp=moveTo(ur5Direct(q_temp),final_stand-up_down_di, Vector3d(M_PI,0.0,0.0), Vector3d(M_PI,0.0,0.0));
     break;
     case 3:
-      q_temp=moveTo(ur5Direct(q_temp),final_stand, Vector3d(M_PI,0.0,0.0), Vector3d(M_PI,0.0,0.0));
+      q_temp=moveTo(ur5Direct(q_temp),final_stand-up_down_di, Vector3d(M_PI,0.0,0.0), Vector3d(M_PI,0.0,0.0));
     break;
     case 4:
-      q_temp=moveTo(ur5Direct(q_temp),final_stand, Vector3d(M_PI,0.0,0.0), Vector3d(M_PI,0.0,0.0));
+      q_temp=moveTo(ur5Direct(q_temp),final_stand-up_down_di, Vector3d(M_PI,0.0,0.0), Vector3d(M_PI,0.0,0.0));
     break;
     case 5:
-      q_temp=moveTo(ur5Direct(q_temp),final_stand, Vector3d(M_PI,0.0,0.0), Vector3d(M_PI,0.0,0.0));
+      q_temp=moveTo(ur5Direct(q_temp),final_stand-up_down_di, Vector3d(M_PI,0.0,0.0), Vector3d(M_PI,0.0,0.0));
     break;
     case 6:
-      q_temp=moveTo(ur5Direct(q_temp),final_stand, Vector3d(M_PI,0.0,0.0), Vector3d(M_PI,0.0,0.0));
+      q_temp=moveTo(ur5Direct(q_temp),final_stand-up_down_di, Vector3d(M_PI,0.0,0.0), Vector3d(M_PI,0.0,0.0));
     break;
     case 7:
-      q_temp=moveTo(ur5Direct(q_temp),final_stand, Vector3d(M_PI,0.0,0.0), Vector3d(M_PI,0.0,0.0));
+      q_temp=moveTo(ur5Direct(q_temp),final_stand-up_down_di, Vector3d(M_PI,0.0,0.0), Vector3d(M_PI,0.0,0.0));
     break;
     case 8:
-      q_temp=moveTo(ur5Direct(q_temp),final_stand, Vector3d(M_PI,0.0,0.0), Vector3d(M_PI,0.0,0.0));
+      q_temp=moveTo(ur5Direct(q_temp),final_stand-up_down_di, Vector3d(M_PI,0.0,0.0), Vector3d(M_PI,0.0,0.0));
     break;
     case 9:
-      q_temp=moveTo(ur5Direct(q_temp),final_stand, Vector3d(M_PI,0.0,0.0), Vector3d(M_PI,0.0,0.0));
+      q_temp=moveTo(ur5Direct(q_temp),final_stand-up_down_di, Vector3d(M_PI,0.0,0.0), Vector3d(M_PI,0.0,0.0));
     break;
     case 10:
-      q_temp=moveTo(ur5Direct(q_temp),final_stand, Vector3d(M_PI,0.0,0.0), Vector3d(M_PI,0.0,0.0));
+      q_temp=moveTo(ur5Direct(q_temp),final_stand-up_down_di, Vector3d(M_PI,0.0,0.0), Vector3d(M_PI,0.0,0.0));
     break;
   }
+
+  sleep(3);
+  q_temp=moveTo(ur5Direct(q_temp),final_stand+Vector3d(0.0,0.0,0.04), Vector3d(M_PI,0.0,0.0), Vector3d(M_PI,0.0,0.0));
 
   apri=true;                            //apri gripper
   while(!grasp(q_temp));
 
- 
+  sleep(2);
+  q_temp=moveTo(ur5Direct(q_temp),final_stand-up_down_di, Vector3d(M_PI,0.0,0.0), Vector3d(M_PI,0.0,0.0));
 
 }
 
@@ -278,26 +301,33 @@ Vector6d moveTo(Vector3d pos_iniziale,Vector3d pos_finale, Vector3d rot_iniziale
   for(int i=0;i<differentialTH.rows();i++){
     q_prova << differentialTH(i,0),differentialTH(i,1),differentialTH(i,2),differentialTH(i,3),differentialTH(i,4),differentialTH(i,5);
     //q_prova = secondOrderFilter(q_prova, loop_frequency, 5.);
+    if(i==differentialTH.rows()-1){
+      Vector6d rot;
+      //rot << 0.0,0.0,0.0,-rot_finale(0),-rot_finale(1),-rot_finale(2);
+      //rot << 0.0,0.0,0.0,0.0,0.0,-rot_finale(2);
+      //q_prova+=rot;
+    }
+    
     if(apri){
-      send_des_jstate(q_prova,open_gripper(50));
+      send_des_jstate(q_prova,open_gripper(60));
     }else{
-      send_des_jstate(q_prova,open_gripper(0));
+      send_des_jstate(q_prova,open_gripper(10));
     }
     
   }
 
-  return differentialTH.row(differentialTH.rows()-1);
-
+  //return differentialTH.row(differentialTH.rows()-1);
+  return q_prova; 
 }
 
 bool grasp(Vector6d q){
   sleep(2);
   switch(apri){
     case false:
-      send_des_jstate(q,open_gripper(0));
+      send_des_jstate(q,open_gripper(10));
     break;
     case true:
-      send_des_jstate(q,open_gripper(50));
+      send_des_jstate(q,open_gripper(60));
     break;
   }
   
@@ -338,8 +368,6 @@ int main(int argc, char **argv)
   Vector6d freq;
   amp << 0.3, 0.0, 0.0, 0.0, 0.0, 0.0;
   freq << 0.2, 0.0, 0.0, 0.0, 0., 0.0;
-
-
   //globali
   //q_des0 << -0.3223527113543909, -0.7805794638446351, -2.5675506591796875, -1.6347843609251917, -1.5715253988849085, -1.0017417112933558;
   //q_des0 << -0.32 ,  -0.78002  ,  -2.56007  , -1.63004 ,    -1.57004 , 3.49009;
@@ -354,12 +382,12 @@ int main(int argc, char **argv)
 
   //ros::Subscriber subPos=n.subscribe("/posattualerobot", 1000, posAttuale);
   
-  detected_pos_blocchetti <<  0.8,0.35,0.85,
+  detected_pos_blocchetti <<  0.8,0.3,0.85,
                               0.0,0.0,0.0,
                               0.0,0.0,0.0,
                               0.0,0.0,0.0;
                              
-                         
+                       
   cout<<detected_pos_blocchetti<<endl;
 
 
