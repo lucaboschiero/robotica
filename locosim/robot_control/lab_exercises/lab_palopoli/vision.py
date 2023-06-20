@@ -25,7 +25,7 @@ class vision():
         #self.base_offset = np.array([0.5, 0.35, 1.75])
         self.point_cloud = PointCloud2()
         self.voxel_size = 0.003
-        self.models="/home/lucaboschiero/ros_ws/src/locosim/ros_impedance_controller/worlds/models"
+        self.models="/home/mauro/ros_ws/src/locosim/ros_impedance_controller/worlds/models"
         self.model_names=np.array(["X1-Y2-Z1", "X1-Y2-Z2", "X1-Y2-Z2-CHAMFER", "X1-Y2-Z2-TWINFILLET", "X1-Y3-Z2", "X1-Y3-Z2-FILLET", "X1-Y4-Z1", "X1-Y4-Z2", "X2-Y2-Z2", "X2-Y2-Z2-FILLET"])
 
 
@@ -110,7 +110,7 @@ class vision():
         target_down, target_fpfh = self.process_pointCloud(target)
 
         result = self.registration(source_down, target_down, source_fpfh, target_fpfh)
-
+        #print("Result: "+result)
         R = result.transformation[:3, :3].copy()
         return R
 
@@ -155,6 +155,7 @@ class vision():
                 for point in points:
                     points_traslated.append((point - point_middle))
 
+                #print(points_traslated)
                 # Get the rotation matrix and translation vector from the detected pointcloud and the associated .stl model
                 rotation_matrix = self.pose_estimation(points_traslated)
 
@@ -163,10 +164,13 @@ class vision():
                 for point in points_traslated:
                     points_traslatedR.append(rotation_matrix.dot(point))
 
-                roll, pitch, yaw = mat2euler(rotation_matrix, 'rzyx')  # 'rzyx' specifies the rotation order
-                coordinate.roll= roll
-                coordinate.pitch = pitch
-                coordinate.yaw = yaw
+                
+                #roll, pitch, yaw = mat2euler(rotation_matrix, 'rzyx')  # 'rzyx' specifies the rotation order
+                #coordinate.roll= roll
+                #coordinate.pitch = pitch
+                #coordinate.yaw = yaw
+                #print(coordinate)
+                coordinate.R = rotation_matrix.flatten().tolist()
 
             pubco.publish(coordinate)
 

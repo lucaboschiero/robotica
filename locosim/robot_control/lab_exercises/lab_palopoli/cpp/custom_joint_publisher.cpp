@@ -4,6 +4,7 @@
 #include <std_msgs/String.h>
 #include <cstring>
 #include <iostream>
+#include <gazebo_msgs/ModelStates.h>
 
 
 
@@ -12,27 +13,17 @@ void send_des_jstate(const Vector6d & joint_pos, const Vector3d & gripper_joint)
     //std::cout << "q_des " << joint_pos.transpose() <<" "<<gripper_joint.transpose() << std::endl;
     switch(use_gripper){
         case 0:
-          if(real_robot){
+          
             
             for (int i = 0; i < joint_pos.size(); i++){
               jointState_msg_robot.data[i] = joint_pos[i];
             }
 
             pub_des_jstate.publish(jointState_msg_robot);
-          }else{
-            
-            for (int i = 0; i < joint_pos.size(); i++){ 
-              jointState_msg_sim.position[i] = joint_pos[i];
-              jointState_msg_sim.velocity[i] = 0.0;
-              jointState_msg_sim.effort[i] = 0.0;
-            }
-
-            pub_des_jstate.publish(jointState_msg_sim);
-          }
         break;
         case 1:
 
-          if(real_robot){
+          
             
             jointState_msg_robot.data.resize(joint_pos.size() + gripper_joint.size() -1);
             for (int i = 0; i < joint_pos.size(); i++){
@@ -42,24 +33,10 @@ void send_des_jstate(const Vector6d & joint_pos, const Vector3d & gripper_joint)
             jointState_msg_robot.data[7] = gripper_joint(1);
 
             pub_des_jstate.publish(jointState_msg_robot);
-          }else{
-
-            for (int i = 0; i < joint_pos.size(); i++){ 
-              jointState_msg_sim.position[i] = joint_pos[i];
-              jointState_msg_sim.velocity[i] = 0.0;
-              jointState_msg_sim.effort[i] = 0.0;
-            }
-            for(int i=joint_pos.size();i<joint_pos.size() + gripper_joint.size() -1;i++){
-              jointState_msg_sim.position[i] = gripper_joint[i];
-              jointState_msg_sim.velocity[i] = 0.0;
-              jointState_msg_sim.effort[i] = 0.0;
-            }
-
-            pub_des_jstate.publish(jointState_msg_sim);
-          }
+          
         break;
         case 2:
-          if(real_robot){
+          
 
             jointState_msg_robot.data.resize(joint_pos.size() + gripper_joint.size());
             for (int i = 0; i < joint_pos.size(); i++){
@@ -70,21 +47,7 @@ void send_des_jstate(const Vector6d & joint_pos, const Vector3d & gripper_joint)
             jointState_msg_robot.data[8] = gripper_joint(2);
 
             pub_des_jstate.publish(jointState_msg_robot);
-          }else{
-
-            for (int i = 0; i < joint_pos.size(); i++){ 
-              jointState_msg_sim.position[i] = joint_pos[i];
-              jointState_msg_sim.velocity[i] = 0.0;
-              jointState_msg_sim.effort[i] = 0.0;
-            }
-            for(int i=joint_pos.size();i<joint_pos.size() + gripper_joint.size();i++){
-              jointState_msg_sim.position[i] = gripper_joint[i];
-              jointState_msg_sim.velocity[i] = 0.0;
-              jointState_msg_sim.effort[i] = 0.0;
-            }
-
-            pub_des_jstate.publish(jointState_msg_sim);
-          }
+          
         break;
 
     }
@@ -148,12 +111,23 @@ void detect(const custom_msgs::Coord::ConstPtr& msg){
   //funzione che si sottoscrive al topic e riceve la matrice coi blocchetti
 
   string cl;
-  double x,y,z;
+  double x,y,z,roll,pitch,yaw;
   int cl_int;
-
+  Matrix3d Rot;
+  
   x=msg->x;
   y=msg->y;
   z=msg->z;
+  //roll=msg->roll;
+  //pitch=msg->pitch;
+  //yaw=msg->yaw;
+  std::vector<float> roto (msg->R.begin(), msg->R.end());
+
+  Rot << roto[0],roto[1],roto[2],
+         roto[3],roto[4],roto[5],
+         roto[6],roto[7],roto[8]; 
+
+  cout<<rotm2eulFDR(Rot).transpose()<<endl;
   //cl=msg->cl;
   //cl--;
   
@@ -185,6 +159,9 @@ void detect(const custom_msgs::Coord::ConstPtr& msg){
     detected_pos_blocchetti(cl_int,0)=x;
     detected_pos_blocchetti(cl_int,1)=y;
     detected_pos_blocchetti(cl_int,2)=z;
+    detected_pos_blocchetti(cl_int,3)=rotm2eulFDR(Rot)(0);
+    detected_pos_blocchetti(cl_int,4)=rotm2eulFDR(Rot)(1);
+    detected_pos_blocchetti(cl_int,5)=M_PI - rotm2eulFDR(Rot)(2);
   }
 
 }
@@ -193,8 +170,15 @@ void posAttuale(const custom_msgs::PosRobot::ConstPtr& msg){
        pos_attuale << msg->data[0],msg->data[1],msg->data[2],msg->data[3],msg->data[4],msg->data[5];
 }
 
+Vector6d rotate(Vector6d q, Vector3d rot){
+  Vector6d rotation;
+  rotation << 0.0,0.0,0.0,-rot(0),-rot(1),-rot(2);
+  
+  return q+rotation;
+}
 
-void motionPlan(Vector3d pos_blocchetto,int classe){
+
+void motionPlan(Vector6d pos_blocchetto,int classe){
 
   
   Vector3d posIniziale=ur5Direct(q_des0);
@@ -212,23 +196,34 @@ void motionPlan(Vector3d pos_blocchetto,int classe){
     q_temp=moveTo(posIniziale,pos_blocchetto-up_down_di,Vector3d(M_PI,0.,0.),Vector3d(M_PI/2,0.,2.));  //muovo in base ai cubetti nella matrice
   }
 */
-  q_temp=moveTo(posIniziale,pos_blocchetto-up_down_di,Vector3d(M_PI,0.,0.),Vector3d(M_PI/2,0.,2.));  //muovo in base ai cubetti nella matrice
+  q_temp=moveTo(posIniziale,pos_blocchetto.head(3)-up_down_di,Vector3d(M_PI,0.,0.),Vector3d(0.,0.,pos_blocchetto(5)));  //muovo in base ai cubetti nella matrice
   
   sleep(2);
   cout<<ur5Direct(q_temp).transpose()<<endl;
-  q_temp=moveTo(ur5Direct(q_temp),pos_blocchetto,Vector3d(0.,0.0,0.0),Vector3d(0.,0.0,0.0));
+  q_temp=moveTo(ur5Direct(q_temp),pos_blocchetto.head(3),Vector3d(0.,0.,pos_blocchetto(5)),Vector3d(0.,0.,pos_blocchetto(5)));
   sleep(1);
 
   apri=false;                 //chiudi gripper
   while(!grasp(q_temp));
+/*
+  if(pos_blocchetto(3) != 0 || pos_blocchetto(4) != 0){
+    cout<<"ciao"<<endl;
+    sleep(2);
+    q_temp=moveTo(ur5Direct(q_temp),ur5Direct(q_temp)-up_down_di, Vector3d(0.,0.0,0.0), Vector3d(0.,0.0,0.0));  //alzo il cubetto
+    sleep(2);
+    q_temp=moveTo(ur5Direct(q_temp),ur5Direct(q_temp)-up_down_di, Vector3d(0.,0.0,0.0), Vector3d(0.,M_PI/2,0.0));  //ruoto il cubetto
+
+    sleep(2);
+    q_temp=moveTo(ur5Direct(q_temp),pos_blocchetto.head(3)+up_down_di, Vector3d(0.,M_PI/2,0.0), Vector3d(0.,M_PI/2,0.0));  //abbasso il cubetto
+  }*/
 
   sleep(2);
-  q_temp=moveTo(ur5Direct(q_temp),ur5Direct(q_temp)-up_down_di, Vector3d(M_PI,0.0,0.0), Vector3d(M_PI,0.0,0.0));  //alzo il cubetto
+  q_temp=moveTo(ur5Direct(q_temp),ur5Direct(q_temp)-up_down_di, Vector3d(0.,0.0,0.0), Vector3d(0.,0.0,0.0));  //alzo il cubetto
   sleep(1);
 
   switch(classe){
     case 0:
-      q_temp=moveTo(ur5Direct(q_temp),final_stand-up_down_di, Vector3d(0.,0.0,0.0), Vector3d(0.,0.0,0.0)); 
+      q_temp=moveTo(ur5Direct(q_temp),final_stand-up_down_di, Vector3d(0.,0.0,0.0), Vector3d(0.,0.0,0)); 
     break;
     case 1:
       q_temp=moveTo(ur5Direct(q_temp),final_stand-up_down_di, Vector3d(0.,0.0,0.0), Vector3d(0.,0.0,0.0));        //muovo da pos_blocchetto a final stand (non so dove sia ma vabbe)
@@ -263,13 +258,13 @@ void motionPlan(Vector3d pos_blocchetto,int classe){
   }
 
   sleep(3);
-  q_temp=moveTo(ur5Direct(q_temp),final_stand+Vector3d(0.0,0.0,0.04), Vector3d(M_PI,0.0,0.0), Vector3d(M_PI,0.0,0.0));
+  q_temp=moveTo(ur5Direct(q_temp),final_stand+Vector3d(0.0,0.0,0.04), Vector3d(0.,0.0,0), Vector3d(0.,0.0,0));
 
   apri=true;                            //apri gripper
   while(!grasp(q_temp));
 
   sleep(2);
-  q_temp=moveTo(ur5Direct(q_temp),final_stand-up_down_di, Vector3d(M_PI,0.0,0.0), Vector3d(M_PI,0.0,0.0));
+  q_temp=moveTo(ur5Direct(q_temp),final_stand-up_down_di, Vector3d(0.,0.0,0.0), Vector3d(0.,0.0,0.0));
 
 }
 
@@ -306,6 +301,7 @@ Vector6d moveTo(Vector3d pos_iniziale,Vector3d pos_finale, Vector3d rot_iniziale
       //rot << 0.0,0.0,0.0,-rot_finale(0),-rot_finale(1),-rot_finale(2);
       //rot << 0.0,0.0,0.0,0.0,0.0,-rot_finale(2);
       //q_prova+=rot;
+      q_prova=rotate(q_prova,rot_finale);
     }
     
     if(apri){
@@ -315,6 +311,8 @@ Vector6d moveTo(Vector3d pos_iniziale,Vector3d pos_finale, Vector3d rot_iniziale
     }
     
   }
+
+  
 
   //return differentialTH.row(differentialTH.rows()-1);
   return q_prova; 
@@ -334,7 +332,40 @@ bool grasp(Vector6d q){
   return 1;
 }
 
+Vector3d quaternionToRPY(const geometry_msgs::Quaternion& model_orientation)
+{
+  // Creazione del quaternione utilizzando i valori x, y, z, w
+  Quaterniond quat(model_orientation.w, model_orientation.x, model_orientation.y, model_orientation.z);
 
+  // Conversione del quaternione in RPY
+  Vector3d rpy = quat.toRotationMatrix().eulerAngles(0, 1, 2);
+
+  return rpy;
+}
+
+
+void modelStatesCallback(const gazebo_msgs::ModelStates::ConstPtr& msg)
+{
+
+
+
+  // Stampa le informazioni sui modelli
+  for (int i = 0; i < msg->name.size(); ++i)
+  {
+    string model_name = msg->name[i];
+
+    if (model_name.find("model") != string::npos){
+      if(detected_pos_blocchetti(0,3) == 0 && detected_pos_blocchetti(0,4) == 0 && detected_pos_blocchetti(0,5) == 0){
+        Vector3d rpyOrientation= quaternionToRPY(msg->pose[i].orientation);
+        detected_pos_blocchetti(0,3) = rpyOrientation(0);
+        detected_pos_blocchetti(0,4) = rpyOrientation(1);
+        detected_pos_blocchetti(0,5) = rpyOrientation(2);
+      }
+    }
+  }
+
+
+}
 
 
 
@@ -348,20 +379,14 @@ int main(int argc, char **argv)
 
   //node.getParam("/real_robot", real_robot);
 
-  if (real_robot)
-  {
-      pub_des_jstate = node.advertise<std_msgs::Float64MultiArray>("/ur5/joint_group_pos_controller/command", 1);
-
-  } else {
-      pub_des_jstate = node.advertise<sensor_msgs::JointState>("/command", 1);
-  }
+  
+  pub_des_jstate = node.advertise<std_msgs::Float64MultiArray>("/ur5/joint_group_pos_controller/command", 1);
+  //ros::Subscriber sub = node.subscribe("/gazebo/model_states", 1000, modelStatesCallback);
 
   ros::Rate loop_rate(loop_frequency);
 
-  jointState_msg_sim.position.resize(6);
-  jointState_msg_sim.velocity.resize(6);
-  jointState_msg_sim.effort.resize(6);
-  jointState_msg_robot.data.resize(6);
+  
+  //jointState_msg_robot.data.resize(6);
 
   
   Vector6d amp;
@@ -373,21 +398,21 @@ int main(int argc, char **argv)
   //q_des0 << -0.32 ,  -0.78002  ,  -2.56007  , -1.63004 ,    -1.57004 , 3.49009;
   
   q_des0 << -0.321997,-0.919283,-2.61359,-1.17952,-1.5708,-1.2488;
+  initFilter(q_des0);
 
 
-
-  //ros::NodeHandle n;
-  //ros::Subscriber sub = n.subscribe("/coordinates", 1000, detect);
+  ros::NodeHandle n;
+  ros::Subscriber sub1 = n.subscribe("/coordinates", 1000, detect);
         //funzione che si sottoscrive al topic e genera una matrice con posizione e classe dei blocchetti
 
   //ros::Subscriber subPos=n.subscribe("/posattualerobot", 1000, posAttuale);
-  
-  detected_pos_blocchetti <<  0.8,0.3,0.85,
-                              0.0,0.0,0.0,
-                              0.0,0.0,0.0,
-                              0.0,0.0,0.0;
+  /*
+  detected_pos_blocchetti <<  0.7,0.5,0.85,0.,0.,0.,
+                              0.0,0.0,0.0,0.,0.,0.,
+                              0.0,0.0,0.0,0.,0.,0.,
+                              0.0,0.0,0.0,0.,0.,0.;
                              
-                       
+   */                   
   cout<<detected_pos_blocchetti<<endl;
 
 
@@ -402,7 +427,7 @@ int main(int argc, char **argv)
       //cout<<"Fine Homing\n";
     } else {
       //cout<<pos_attuale.transpose()<<endl;
-      //cout<<detected_pos_blocchetti<<endl;
+      cout<<detected_pos_blocchetti<<endl;
 
       for(int i=0;i<11;i++){
 
@@ -410,14 +435,17 @@ int main(int argc, char **argv)
 
         if((detected_pos_blocchetti(i,0)!=0 || detected_pos_blocchetti(i,1)!=0 || detected_pos_blocchetti(i,2)!=0) && (detected_pos_blocchetti(i,0)!=-1 && detected_pos_blocchetti(i,1)!=-1 && detected_pos_blocchetti(i,2)!=-1)){
           
-          detected_pos_blocchetti.row(i)-=shift;
+          detected_pos_blocchetti.row(i).head(3)-=shift;
+          detected_pos_blocchetti(i,1) *= -1;
 
-          motionPlan(Vector3d(detected_pos_blocchetti(i,0),-detected_pos_blocchetti(i,1),detected_pos_blocchetti(i,2)),i+1);       //passo posizione e classe
+          motionPlan(detected_pos_blocchetti.row(i),i);       //passo posizione e classe
           
           detected_pos_blocchetti(i,0)=-1;
           detected_pos_blocchetti(i,1)=-1;
           detected_pos_blocchetti(i,2)=-1;
-
+          detected_pos_blocchetti(i,3)=0;
+          detected_pos_blocchetti(i,4)=0;
+          detected_pos_blocchetti(i,5)=0;
           
 
           sleep(2);

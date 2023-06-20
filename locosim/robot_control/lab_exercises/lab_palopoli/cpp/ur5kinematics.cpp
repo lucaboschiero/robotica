@@ -481,9 +481,13 @@ Vector6d invDiffKinematiControlComplete(Vector6d q, Vector3d xe, Vector3d xd, Ve
         
         Vector3d omega_dot = T*phiddot;
 
+        
+
+
         Vector3d v1=vd+Kp*(xd-xe);
         //Vector3d v2=omega_dot+Kphi*error_o;
         Vector3d v2=Kphi*error_o;
+        
 
         Vector6d v1v2;
         v1v2 << v1(0),v1(1),v1(2),v2(0),v2(1),v2(2);
@@ -597,6 +601,7 @@ MatrixXd invDiffKinematicControlSimComplete(Vector3d xe0,Vector3d xef,Vector3d p
 }
 
 
+
 int main(){
         A << 0.0, -0.425, -0.3922, 0.0, 0.0, 0.0; 
         D << 0.1625, 0.0, 0.0, 0.1333, 0.0997, 0.0996;
@@ -618,7 +623,7 @@ int main(){
 
 
         Vector3d pe1;
-        pe1 << 0.3, 0.5, 0.85;   //3.51465 -0.760302   1.84325   1.98053   1.20247  -4.69833
+        pe1 << 0.8, 0.3, 0.85;   //3.51465 -0.760302   1.84325   1.98053   1.20247  -4.69833
 
         Matrix86d Thresult=ur5Inverse(peIniziale);
 
@@ -657,10 +662,9 @@ int main(){
 
         MatrixXd differentialTH=invDiffKinematicControlSimComplete(peIniziale,pe1,rotm2eulFDR(Re),Vector3d(0.0,0.0,M_PI),ThFirstRow,Kp,Kphi, TMIN, TMAX, DELTAT);
 
-        cout<<differentialTH<<"\n";
-
+        //cout<<differentialTH<<"\n";
+        cout<<differentialTH.row(differentialTH.rows()-1)<<endl;
         cout<<ur5Direct(differentialTH.row(differentialTH.rows()-1))<<endl;
         //cout<<differentialTH.rows()<<endl;
         //cout<<differentialTH.row(differentialTH.rows()-1)<<endl;
-
 }

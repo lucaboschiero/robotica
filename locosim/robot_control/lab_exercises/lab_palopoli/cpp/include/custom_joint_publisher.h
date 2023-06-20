@@ -16,7 +16,7 @@ using namespace std;
 using namespace Eigen;
 
 typedef  Matrix<double, 6, 1> Vector6d;
-typedef  Matrix<double, 11, 3> Matrix113d;
+typedef  Matrix<double, 11, 6> Matrix116d;
 
 
 // Methods
@@ -30,7 +30,7 @@ Vector6d tau_ffwd = Vector6d::Zero();
 Vector6d filter_1 = Vector6d::Zero();
 Vector6d filter_2 = Vector6d::Zero();
 Vector6d q_des0 = Vector6d::Zero();
-Matrix113d detected_pos_blocchetti=Matrix113d::Zero(10,3);
+Matrix116d detected_pos_blocchetti=Matrix116d::Zero(10,6);
 
 
 const Vector3d shift(0.5,0.35,0.12);
@@ -46,17 +46,17 @@ bool apri = true;
 // Publishers
 //std::shared_ptr<realtime_tools::RealtimePublisher<sensor_msgs::JointState> > pub_des_jstate_sim_rt;
 ros::Publisher pub_des_jstate;
-sensor_msgs::JointState jointState_msg_sim;
 std_msgs::Float64MultiArray jointState_msg_robot;
 
 //void detect(const custom_msgs::Coord::ConstPtr& msg);
 bool homing();
+Vector6d rotate(Vector6d q, Vector3d rot);
+Vector3d open_gripper(double d);
+void detect(const custom_msgs::Coord::ConstPtr& msg);
 Vector6d moveTo(Vector3d pos_iniziale,Vector3d pos_finale, Vector3d rot_iniziale, Vector3d rot_finale);
 bool grasp(Vector6d q);
-void motionPlan(Vector3d pos_blocchetto,int classe);
+void motionPlan(Vector6d pos_blocchetto,int classe);
 
-
-bool real_robot = true;
 int use_gripper = 1;        //0 -> no gripper    1-> soft gripper     2-> 3-finger gripper
 
 #endif
