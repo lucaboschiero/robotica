@@ -127,8 +127,8 @@ class vision():
                 y_max = msg.bounding_boxes[i].ymax
                 u = int((msg.bounding_boxes[i].xmin + msg.bounding_boxes[i].xmax) / 2)
                 v = int((msg.bounding_boxes[i].ymin + msg.bounding_boxes[i].ymax) / 2)
-                cl = (int)(msg.bounding_boxes[i].Class)
-
+                cl = (msg.bounding_boxes[i].Class)
+                print(cl)
                 for data in point_cloud2.read_points(self.point_cloud, field_names=['x', 'y', 'z'], skip_nans=False, uvs=[(u, v)]):
                     points_list.append([data[0], data[1], data[2]])
                     print("Data Optical frame: ", points_list)

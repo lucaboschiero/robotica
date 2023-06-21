@@ -128,40 +128,40 @@ void detect(const custom_msgs::Coord::ConstPtr& msg){
          roto[6],roto[7],roto[8]; 
 
   cout<<rotm2eulFDR(Rot).transpose()<<endl;
-  //cl=msg->cl;
-  //cl--;
+  cl=msg->cl;
+  cout<<msg->cl<<endl;
   
   if (strcmp(cl.c_str(),"1")==0)
-    cl_int=1;
+    cl_int=0;
   if (strcmp(cl.c_str(),"2")==0)
-    cl_int=2;
+    cl_int=1;
   if (strcmp(cl.c_str(),"3")==0)
-    cl_int=3;
+    cl_int=2;
   if (strcmp(cl.c_str(),"4")==0)
-    cl_int=4;
+    cl_int=3;
   if (strcmp(cl.c_str(),"5")==0)
-    cl_int=5;
+    cl_int=4;
   if (strcmp(cl.c_str(),"6")==0)
-    cl_int=6;
+    cl_int=5;
   if (strcmp(cl.c_str(),"7")==0)
-    cl_int=7;
+    cl_int=6;
   if (strcmp(cl.c_str(),"8")==0)
-    cl_int=8;
+    cl_int=7;
   if (strcmp(cl.c_str(),"9")==0)
+    cl_int=8;
+  if (strcmp(cl.c_str(),"6-FILLER")==0)
     cl_int=9;
-  if (strcmp(cl.c_str(),"6-FILLET")==0)
+  if (strcmp(cl.c_str(),"9-FILLER")==0)
     cl_int=10;
-  if (strcmp(cl.c_str(),"9-FILLET")==0)
-    cl_int=11;
          
 
   if(detected_pos_blocchetti(cl_int,0)==0 && detected_pos_blocchetti(cl_int,1)==0 && detected_pos_blocchetti(cl_int,2)==0){
-    detected_pos_blocchetti(cl_int,0)=x;
+    detected_pos_blocchetti(cl_int,0)=x+0.015;
     detected_pos_blocchetti(cl_int,1)=y;
     detected_pos_blocchetti(cl_int,2)=z;
     detected_pos_blocchetti(cl_int,3)=rotm2eulFDR(Rot)(0);
     detected_pos_blocchetti(cl_int,4)=rotm2eulFDR(Rot)(1);
-    detected_pos_blocchetti(cl_int,5)=M_PI - rotm2eulFDR(Rot)(2);
+    detected_pos_blocchetti(cl_int,5)=M_PI-rotm2eulFDR(Rot)(2);
   }
 
 }
@@ -229,31 +229,31 @@ void motionPlan(Vector6d pos_blocchetto,int classe){
       q_temp=moveTo(ur5Direct(q_temp),final_stand-up_down_di, Vector3d(0.,0.0,0.0), Vector3d(0.,0.0,0.0));        //muovo da pos_blocchetto a final stand (non so dove sia ma vabbe)
     break;
     case 2:
-      q_temp=moveTo(ur5Direct(q_temp),final_stand-up_down_di, Vector3d(M_PI,0.0,0.0), Vector3d(M_PI,0.0,0.0));
+      q_temp=moveTo(ur5Direct(q_temp),final_stand-up_down_di, Vector3d(0.,0.0,0.0), Vector3d(0.,0.0,0.0));
     break;
     case 3:
-      q_temp=moveTo(ur5Direct(q_temp),final_stand-up_down_di, Vector3d(M_PI,0.0,0.0), Vector3d(M_PI,0.0,0.0));
+      q_temp=moveTo(ur5Direct(q_temp),final_stand-up_down_di, Vector3d(0.,0.0,0.0), Vector3d(0.,0.0,0.0));
     break;
     case 4:
-      q_temp=moveTo(ur5Direct(q_temp),final_stand-up_down_di, Vector3d(M_PI,0.0,0.0), Vector3d(M_PI,0.0,0.0));
+      q_temp=moveTo(ur5Direct(q_temp),final_stand-up_down_di, Vector3d(0.,0.0,0.0), Vector3d(0.,0.0,0.0));
     break;
     case 5:
-      q_temp=moveTo(ur5Direct(q_temp),final_stand-up_down_di, Vector3d(M_PI,0.0,0.0), Vector3d(M_PI,0.0,0.0));
+      q_temp=moveTo(ur5Direct(q_temp),final_stand-up_down_di, Vector3d(0.,0.0,0.0), Vector3d(0.,0.0,0.0));
     break;
     case 6:
-      q_temp=moveTo(ur5Direct(q_temp),final_stand-up_down_di, Vector3d(M_PI,0.0,0.0), Vector3d(M_PI,0.0,0.0));
+      q_temp=moveTo(ur5Direct(q_temp),final_stand-up_down_di, Vector3d(0.,0.0,0.0), Vector3d(0.,0.0,0.0));
     break;
     case 7:
-      q_temp=moveTo(ur5Direct(q_temp),final_stand-up_down_di, Vector3d(M_PI,0.0,0.0), Vector3d(M_PI,0.0,0.0));
+      q_temp=moveTo(ur5Direct(q_temp),final_stand-up_down_di, Vector3d(0.,0.0,0.0), Vector3d(0.,0.0,0.0));
     break;
     case 8:
-      q_temp=moveTo(ur5Direct(q_temp),final_stand-up_down_di, Vector3d(M_PI,0.0,0.0), Vector3d(M_PI,0.0,0.0));
+      q_temp=moveTo(ur5Direct(q_temp),final_stand-up_down_di, Vector3d(0.,0.0,0.0), Vector3d(0.,0.0,0.0));
     break;
     case 9:
-      q_temp=moveTo(ur5Direct(q_temp),final_stand-up_down_di, Vector3d(M_PI,0.0,0.0), Vector3d(M_PI,0.0,0.0));
+      q_temp=moveTo(ur5Direct(q_temp),final_stand-up_down_di, Vector3d(0.,0.0,0.0), Vector3d(0.,0.0,0.0));
     break;
     case 10:
-      q_temp=moveTo(ur5Direct(q_temp),final_stand-up_down_di, Vector3d(M_PI,0.0,0.0), Vector3d(M_PI,0.0,0.0));
+      q_temp=moveTo(ur5Direct(q_temp),final_stand-up_down_di, Vector3d(0.,0.0,0.0), Vector3d(0.,0.0,0.0));
     break;
   }
 

@@ -64,9 +64,6 @@ Vector3d ur5Direct(Vector6d Th){
         A << 0.0, -0.425, -0.3922, 0.0, 0.0, 0.0; 
         D << 0.1625, 0.0, 0.0, 0.1333, 0.0997, 0.0996;
 
-        Vector6d alfa;
-        alfa << 0, M_PI/2, 0, 0, M_PI/2, -M_PI/2;
-
         T10m=T10(Th(0));
         T21m=T21(Th(1));
         T32m=T32(Th(2));
