@@ -25,8 +25,8 @@ class vision():
         #self.base_offset = np.array([0.5, 0.35, 1.75])
         self.point_cloud = PointCloud2()
         self.voxel_size = 0.003
-        self.models="/home/mauro/ros_ws/src/locosim/ros_impedance_controller/worlds/models"
-        self.model_names=np.array(["X1-Y2-Z1", "X1-Y2-Z2", "X1-Y2-Z2-CHAMFER", "X1-Y2-Z2-TWINFILLET", "X1-Y3-Z2", "X1-Y3-Z2-FILLET", "X1-Y4-Z1", "X1-Y4-Z2", "X2-Y2-Z2", "X2-Y2-Z2-FILLET"])
+        self.models="/home/lucaboschiero/ros_ws/src/locosim/ros_impedance_controller/worlds/models"
+        #self.model_names=np.array(["X1-Y1-Z2", "X1-Y2-Z1", "X1-Y2-Z2", "X1-Y2-Z2-CHAMFER", "X1-Y2-Z2-TWINFILLET", "X1-Y3-Z2", "X1-Y3-Z2-FILLET", "X1-Y4-Z1", "X1-Y4-Z2", "X2-Y2-Z2", "X2-Y2-Z2-FILLET"])
 
 
     def pointcloud_callback(self, msg):
@@ -45,11 +45,11 @@ class vision():
 
         uv = [(x, y) for y in range(y_min, y_max + 1) for x in range(x_min, x_max + 1)]
 
-        points_region = []
+        points = []
         for data in point_cloud2.read_points(self.point_cloud, field_names=['x', 'y', 'z'], skip_nans=False, uvs=uv):
-            points_region.append([data[0], data[1], data[2]])
+            points.append([data[0], data[1], data[2]])
 
-        return points_region
+        return points
 
     def process_pointCloud(self, pcd):
 
@@ -85,14 +85,49 @@ class vision():
             o3d.pipelines.registration.TransformationEstimationPointToPlane())
         
         return result1
+    
+    def getModelPath(self, cl):
+        if cl == "1" :
+            return "/model0/meshes/X1-Y1-Z2.stl"
 
-    def pose_estimation(self, object_points):
+        elif cl == "2" :
+            return "/model1/meshes/X1-Y2-Z1.stl"
+
+        elif cl == "3" :
+            return "/model2/meshes/X1-Y2-Z2.stl"
+        
+        elif cl == "4" :
+            return "/model3/meshes/X1-Y2-Z2-CHAMFER.stl"
+        
+        elif cl == "5" :
+            return "/model4/meshes/X1-Y2-Z2-TWINFILLET.stl"
+        
+        elif cl == "6" :
+            return "/model5/meshes/X1-Y3-Z2.stl"
+        
+        elif cl == "6-FILLER" :
+            return "/model6/meshes/X1-Y3-Z2-FILLET.stl"
+        
+        elif cl == "7" :
+            return "/model7/meshes/X1-Y4-Z1.stl"
+        
+        elif cl == "8" :
+            return "/model8/meshes/X1-Y4-Z2.stl"
+        
+        elif cl == "9" :
+            return "/model9/meshes/X2-Y2-Z2.stl"
+        
+        elif cl == "9-FILLER" :
+            return "/model10/meshes/X2-Y2-Z2-FILLET.stl"
+
+    def pose_estimation(self, object_points, object_class):
         object_points = np.asarray(object_points)
         source = o3d.geometry.PointCloud()
         source.points = o3d.utility.Vector3dVector(object_points)
 
+        model_path = self.getModelPath(object_class)
         # Read the mesh data from the STL file
-        stl_file_path = self.models + "/model1/meshes/X1-Y2-Z1.stl"  # Update the file path accordingly
+        stl_file_path = self.models + model_path  # Update the file path accordingly
         try:
             mesh = o3d.io.read_triangle_mesh(stl_file_path)
         except Exception as e:
@@ -128,7 +163,7 @@ class vision():
                 u = int((msg.bounding_boxes[i].xmin + msg.bounding_boxes[i].xmax) / 2)
                 v = int((msg.bounding_boxes[i].ymin + msg.bounding_boxes[i].ymax) / 2)
                 cl = (msg.bounding_boxes[i].Class)
-                print(cl)
+                #print(cl)
                 for data in point_cloud2.read_points(self.point_cloud, field_names=['x', 'y', 'z'], skip_nans=False, uvs=[(u, v)]):
                     points_list.append([data[0], data[1], data[2]])
                     print("Data Optical frame: ", points_list)
@@ -157,7 +192,7 @@ class vision():
 
                 #print(points_traslated)
                 # Get the rotation matrix and translation vector from the detected pointcloud and the associated .stl model
-                rotation_matrix = self.pose_estimation(points_traslated)
+                rotation_matrix = self.pose_estimation(points_traslated, cl)
 
                 print("Rotation matrix: ",rotation_matrix)
                 points_traslatedR = []
