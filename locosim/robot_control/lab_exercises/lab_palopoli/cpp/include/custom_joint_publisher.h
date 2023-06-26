@@ -27,6 +27,7 @@ Vector6d filter_2 = Vector6d::Zero();
 Vector6d q_des0 = Vector6d::Zero();
 Matrix116d detected_pos_blocchetti=Matrix116d::Zero(10,6);
 bool apri = true;
+bool detection = true;
 
 double  loop_time = 0.;
 double  loop_frequency = 1000.;

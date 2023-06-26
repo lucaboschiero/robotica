@@ -113,7 +113,7 @@ void detect(const custom_msgs::Coord::ConstPtr& msg){
     cl_int=10;
          
 
-  if(detected_pos_blocchetti(cl_int,0)==0 && detected_pos_blocchetti(cl_int,1)==0 && detected_pos_blocchetti(cl_int,2)==0){
+  if(detected_pos_blocchetti(cl_int,0)==0 && detected_pos_blocchetti(cl_int,1)==0 && detected_pos_blocchetti(cl_int,2)==0 && detection){
     detected_pos_blocchetti(cl_int,0)=x+0.015;
     detected_pos_blocchetti(cl_int,1)=y;
     detected_pos_blocchetti(cl_int,2)=z;
@@ -176,6 +176,9 @@ void motionPlan(Vector6d pos_blocchetto,int classe){
   //cout<<approx(Re)<<endl;
 
   posIniziale(1)*=-1;
+
+  detection = false;
+
 
   Vector6d q_temp;
  
