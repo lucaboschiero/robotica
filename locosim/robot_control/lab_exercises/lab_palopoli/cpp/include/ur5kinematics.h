@@ -14,6 +14,9 @@
 
 #include <Eigen/Core>
 #include <Eigen/Dense>
+#include <iostream>
+#include <cmath>
+#include "circlecheck.h"
 
 using namespace std;
 using namespace Eigen;

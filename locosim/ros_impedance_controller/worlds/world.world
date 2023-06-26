@@ -27,66 +27,20 @@
     </camera>
     </gui>
     
-    <include>
-      <name>model1</name>
-      <uri>model://model1</uri>
-      <pose>0.5 0.4 0.87 0 0 0</pose>
-    </include>
-    
-    <include>
-      <name>model2</name>
-      <uri>model://model2</uri>
-      <pose>2.1 0.3 0.0 0 0 0</pose>
-    </include>
     
     <include>
       <name>model3</name>
       <uri>model://model3</uri>
-      <pose>2.2 0.5 0.0 0 0 0</pose>
+      <pose>0.7 0.2 0.87 0 0 1.57</pose>
     </include>
-    
-    <include>
-      <name>model4</name>
-      <uri>model://model4</uri>
-      <pose>2.3 0.7 0.0 0 0 0</pose>
-    </include>
-    
-    <include>
-      <name>model5</name>
-      <uri>model://model5</uri>
-      <pose>2.4 0.9 0.0 0 0 0</pose>
-    </include>
-    
+
     <include>
       <name>model6</name>
       <uri>model://model6</uri>
-      <pose>2.5 1.1 0.0 0 0 0</pose>
+      <pose>0.4 0.6 0.87 0 0 2.6</pose>
     </include>
     
-    <include>
-      <name>model7</name>
-      <uri>model://model7</uri>
-      <pose>2.6 1.3 0.0 0 0 0</pose>
-    </include>
-    
-    <include>
-      <name>model8</name>
-      <uri>model://model8</uri>
-      <pose>2.7 1.5 0.0 0 0 0</pose>
-    </include>
-    
-    <include>
-      <name>model9</name>
-      <uri>model://model9</uri>
-      <pose>2.8 1.7 0.0 0 0 0</pose>
-    </include>
-    
-    <include>
-      <name>model10</name>
-      <uri>model://model10</uri>
-      <pose>2.9 1.9 0.0 0 0 0</pose>
-    </include>
- 
+
 
   </world>
 </sdf>

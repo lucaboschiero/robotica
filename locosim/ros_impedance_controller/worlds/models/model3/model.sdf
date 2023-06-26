@@ -39,8 +39,8 @@
 		    	</collision>
 			<visual name="top_visual">
 				<material>  
-					<ambient>144 16 152 1</ambient>
-					<diffuse>164 36 172 1</diffuse>
+					<ambient>0 40 150 1</ambient>
+					<diffuse>0 75 190 1</diffuse>
 					<specular>0 0 0 1</specular>
 					<emissive>0 0 0 1</emissive>
 				</material> 

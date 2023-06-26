@@ -1,16 +1,9 @@
 #include "include/custom_joint_publisher.h"
-#include <math.h>
-#include "include/ur5kinematics.h"
-#include <std_msgs/String.h>
-#include <cstring>
-#include <iostream>
-#include <gazebo_msgs/ModelStates.h>
-
 
 
 void send_des_jstate(const Vector6d & joint_pos, const Vector3d & gripper_joint)
 {
-    //std::cout << "q_des " << joint_pos.transpose() <<" "<<gripper_joint.transpose() << std::endl;
+  
     switch(use_gripper){
         case 0:
           
@@ -69,41 +62,6 @@ Vector6d secondOrderFilter(const Vector6d & input, const double rate, const doub
         filter_1 = (1 - gain) * filter_1 + gain * input;
         filter_2 = (1 - gain) * filter_2 + gain *filter_1;
         return filter_2;
-}
-
-
-Vector3d open_gripper(double d){
-
-    Vector3d q;
-    double opening;
-    double D0 = 40;
-    double L = 60;
-
-    switch(use_gripper){
-      case 0:
-
-        q << -100,-100,-100;
-
-        break;
-      case 1:
-
-        opening = atan2(0.5*(d - D0), L);
-        q << opening, opening, 0;
-
-        break;
-      case 2:
-
-        opening = (d - 22) / 108 * -M_PI + M_PI;
-        q << opening, opening, opening;
-
-        break;
-      default:
-
-        cout<<"ERROR"<<endl;
-        exit(1); 
-    }
-
-    return q;
 }
 
 
@@ -166,9 +124,40 @@ void detect(const custom_msgs::Coord::ConstPtr& msg){
 
 }
 
-void posAttuale(const custom_msgs::PosRobot::ConstPtr& msg){
-       pos_attuale << msg->data[0],msg->data[1],msg->data[2],msg->data[3],msg->data[4],msg->data[5];
+Vector3d open_gripper(double d){
+
+    Vector3d q;
+    double opening;
+    double D0 = 40;
+    double L = 60;
+
+    switch(use_gripper){
+      case 0:
+
+        q << -100,-100,-100;
+
+        break;
+      case 1:
+
+        opening = atan2(0.5*(d - D0), L);
+        q << opening, opening, 0;
+
+        break;
+      case 2:
+
+        opening = (d - 22) / 108 * -M_PI + M_PI;
+        q << opening, opening, opening;
+
+        break;
+      default:
+
+        cout<<"ERROR"<<endl;
+        exit(1); 
+    }
+
+    return q;
 }
+
 
 Vector6d rotate(Vector6d q, Vector3d rot){
   Vector6d rotation;
@@ -183,50 +172,35 @@ void motionPlan(Vector6d pos_blocchetto,int classe){
   
   Vector3d posIniziale=ur5Direct(q_des0);
   cout<<posIniziale.transpose()<<endl;
+  cout<<rotm2eulFDR(Re)<<endl;
+  //cout<<approx(Re)<<endl;
+
   posIniziale(1)*=-1;
 
   Vector6d q_temp;
-  /*
-  if(check_right_trajectory(pos_blocchetto)){
-  
-    q_temp=moveTo(posIniziale,pos_intermedia,Vector3d(M_PI,0.,0.),Vector3d(M_PI/2,0.,2.));
-    sleep(1);
-    q_temp=moveTo(ur5Direct(q_temp),pos_blocchetto-up_down_di,Vector3d(M_PI,0.,0.),Vector3d(M_PI/2,0.,2.));    //blocchetto dall'altra parte del tavolo, faccio step intermedio
-  }else{
-    q_temp=moveTo(posIniziale,pos_blocchetto-up_down_di,Vector3d(M_PI,0.,0.),Vector3d(M_PI/2,0.,2.));  //muovo in base ai cubetti nella matrice
-  }
-*/
-  q_temp=moveTo(posIniziale,pos_blocchetto.head(3)-up_down_di,Vector3d(M_PI,0.,0.),Vector3d(0.,0.,pos_blocchetto(5)));  //muovo in base ai cubetti nella matrice
+ 
+  q_temp=moveTo(posIniziale,pos_blocchetto.head(3)-up_down_di,rotm2eulFDR(Re),Vector3d(0.,0.,pos_blocchetto(5)));  //muovo in base ai cubetti nella matrice
   
   sleep(2);
   cout<<ur5Direct(q_temp).transpose()<<endl;
-  q_temp=moveTo(ur5Direct(q_temp),pos_blocchetto.head(3),Vector3d(0.,0.,pos_blocchetto(5)),Vector3d(0.,0.,pos_blocchetto(5)));
+  q_temp=moveTo(ur5Direct(q_temp),pos_blocchetto.head(3),Vector3d(0.,0.,0.),Vector3d(0.,0.,pos_blocchetto(5)));   //abbasso braccio per prendere cubetto
   sleep(1);
 
   apri=false;                 //chiudi gripper
   while(!grasp(q_temp));
-/*
-  if(pos_blocchetto(3) != 0 || pos_blocchetto(4) != 0){
-    cout<<"ciao"<<endl;
-    sleep(2);
-    q_temp=moveTo(ur5Direct(q_temp),ur5Direct(q_temp)-up_down_di, Vector3d(0.,0.0,0.0), Vector3d(0.,0.0,0.0));  //alzo il cubetto
-    sleep(2);
-    q_temp=moveTo(ur5Direct(q_temp),ur5Direct(q_temp)-up_down_di, Vector3d(0.,0.0,0.0), Vector3d(0.,M_PI/2,0.0));  //ruoto il cubetto
 
-    sleep(2);
-    q_temp=moveTo(ur5Direct(q_temp),pos_blocchetto.head(3)+up_down_di, Vector3d(0.,M_PI/2,0.0), Vector3d(0.,M_PI/2,0.0));  //abbasso il cubetto
-  }*/
 
   sleep(2);
   q_temp=moveTo(ur5Direct(q_temp),ur5Direct(q_temp)-up_down_di, Vector3d(0.,0.0,0.0), Vector3d(0.,0.0,0.0));  //alzo il cubetto
   sleep(1);
+
 
   switch(classe){
     case 0:
       q_temp=moveTo(ur5Direct(q_temp),final_stand-up_down_di, Vector3d(0.,0.0,0.0), Vector3d(0.,0.0,0)); 
     break;
     case 1:
-      q_temp=moveTo(ur5Direct(q_temp),final_stand-up_down_di, Vector3d(0.,0.0,0.0), Vector3d(0.,0.0,0.0));        //muovo da pos_blocchetto a final stand (non so dove sia ma vabbe)
+      q_temp=moveTo(ur5Direct(q_temp),final_stand-up_down_di, Vector3d(0.,0.0,0.0), Vector3d(0.,0.0,0.0));        //muovo da pos_blocchetto a final stand 
     break;
     case 2:
       q_temp=moveTo(ur5Direct(q_temp),final_stand-up_down_di, Vector3d(0.,0.0,0.0), Vector3d(0.,0.0,0.0));
@@ -256,15 +230,16 @@ void motionPlan(Vector6d pos_blocchetto,int classe){
       q_temp=moveTo(ur5Direct(q_temp),final_stand-up_down_di, Vector3d(0.,0.0,0.0), Vector3d(0.,0.0,0.0));
     break;
   }
+   
 
   sleep(3);
-  q_temp=moveTo(ur5Direct(q_temp),final_stand+Vector3d(0.0,0.0,0.04), Vector3d(0.,0.0,0), Vector3d(0.,0.0,0));
+  q_temp=moveTo(ur5Direct(q_temp),final_stand+Vector3d(0.0,0.0,0.04), Vector3d(0.,0.0,0), Vector3d(0.,0.0,0));   //abbasso il cubetto
 
   apri=true;                            //apri gripper
   while(!grasp(q_temp));
 
   sleep(2);
-  q_temp=moveTo(ur5Direct(q_temp),final_stand-up_down_di, Vector3d(0.,0.0,0.0), Vector3d(0.,0.0,0.0));
+  q_temp=moveTo(ur5Direct(q_temp),final_stand-up_down_di, Vector3d(0.,0.0,0.0), Vector3d(0.,0.0,0.0));       //alzo cubetto
 
 }
 
@@ -283,11 +258,11 @@ bool homing(){
 Vector6d moveTo(Vector3d pos_iniziale,Vector3d pos_finale, Vector3d rot_iniziale, Vector3d rot_finale){
   
   //pos_blocchetto=pos_blocchetto-shift;
+  
 
   Matrix86d Thresult=ur5Inverse(pos_iniziale);
   Vector6d q_prova;
-  q_prova << Thresult(7,0), Thresult(7,1), Thresult(7,2), Thresult(7,3), Thresult(7,4), Thresult(7,5);
-  initFilter(q_prova);
+  q_prova = Thresult.row(7);
 
   //MatrixXd differentialTH=invDiffKinematicControlSimComplete(pos_iniziale,pos_blocchetto,rotm2eulFDR(Re),Vector3d(0.0,0.0,0.0),q_prova,Kp,Kphi, TMIN, TMAX, DELTAT);
   MatrixXd differentialTH=invDiffKinematicControlSimComplete(pos_iniziale,pos_finale,rot_iniziale,rot_finale,q_prova,Kp,Kphi, TMIN, TMAX, DELTAT);
@@ -332,40 +307,7 @@ bool grasp(Vector6d q){
   return 1;
 }
 
-Vector3d quaternionToRPY(const geometry_msgs::Quaternion& model_orientation)
-{
-  // Creazione del quaternione utilizzando i valori x, y, z, w
-  Quaterniond quat(model_orientation.w, model_orientation.x, model_orientation.y, model_orientation.z);
 
-  // Conversione del quaternione in RPY
-  Vector3d rpy = quat.toRotationMatrix().eulerAngles(0, 1, 2);
-
-  return rpy;
-}
-
-
-void modelStatesCallback(const gazebo_msgs::ModelStates::ConstPtr& msg)
-{
-
-
-
-  // Stampa le informazioni sui modelli
-  for (int i = 0; i < msg->name.size(); ++i)
-  {
-    string model_name = msg->name[i];
-
-    if (model_name.find("model") != string::npos){
-      if(detected_pos_blocchetti(0,3) == 0 && detected_pos_blocchetti(0,4) == 0 && detected_pos_blocchetti(0,5) == 0){
-        Vector3d rpyOrientation= quaternionToRPY(msg->pose[i].orientation);
-        detected_pos_blocchetti(0,3) = rpyOrientation(0);
-        detected_pos_blocchetti(0,4) = rpyOrientation(1);
-        detected_pos_blocchetti(0,5) = rpyOrientation(2);
-      }
-    }
-  }
-
-
-}
 
 
 
@@ -375,13 +317,11 @@ int main(int argc, char **argv)
   ros::init(argc, argv, "custom_joint_publisher");
   ros::NodeHandle node;
 
-  //pub_des_jstate_sim_rt.reset(new realtime_tools::RealtimePublisher<sensor_msgs::JointState>(node, "/command", 1));
 
-  //node.getParam("/real_robot", real_robot);
 
   
   pub_des_jstate = node.advertise<std_msgs::Float64MultiArray>("/ur5/joint_group_pos_controller/command", 1);
-  //ros::Subscriber sub = node.subscribe("/gazebo/model_states", 1000, modelStatesCallback);
+  
 
   ros::Rate loop_rate(loop_frequency);
 
@@ -393,9 +333,6 @@ int main(int argc, char **argv)
   Vector6d freq;
   amp << 0.3, 0.0, 0.0, 0.0, 0.0, 0.0;
   freq << 0.2, 0.0, 0.0, 0.0, 0., 0.0;
-  //globali
-  //q_des0 << -0.3223527113543909, -0.7805794638446351, -2.5675506591796875, -1.6347843609251917, -1.5715253988849085, -1.0017417112933558;
-  //q_des0 << -0.32 ,  -0.78002  ,  -2.56007  , -1.63004 ,    -1.57004 , 3.49009;
   
   q_des0 << -0.321997,-0.919283,-2.61359,-1.17952,-1.5708,-1.2488;
   initFilter(q_des0);
@@ -403,16 +340,16 @@ int main(int argc, char **argv)
 
   ros::NodeHandle n;
   ros::Subscriber sub1 = n.subscribe("/coordinates", 1000, detect);
-        //funzione che si sottoscrive al topic e genera una matrice con posizione e classe dei blocchetti
+        
 
-  //ros::Subscriber subPos=n.subscribe("/posattualerobot", 1000, posAttuale);
+  
   /*
-  detected_pos_blocchetti <<  0.7,0.5,0.85,0.,0.,0.,
+  detected_pos_blocchetti <<  0.7,0.5,0.85,0.,0.,2.66,
                               0.0,0.0,0.0,0.,0.,0.,
                               0.0,0.0,0.0,0.,0.,0.,
                               0.0,0.0,0.0,0.,0.,0.;
                              
-   */                   
+     */               
   cout<<detected_pos_blocchetti<<endl;
 
 

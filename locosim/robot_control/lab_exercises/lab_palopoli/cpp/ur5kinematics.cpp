@@ -1,12 +1,4 @@
-#include <Eigen/Core>
-#include <Eigen/Dense>
-#include <iostream>
-#include <cmath>
 #include "include/ur5kinematics.h"
-#include "include/circlecheck.h"
-
-using namespace std ;
-using namespace Eigen ;
 
 
 Matrix4d T10(double th){
@@ -291,6 +283,18 @@ Vector3d XD(double t){
         return Vector3d(0.2*cos(OMEGA*t), 0.01, 0.2*sin(OMEGA*t));
 }
 */
+
+MatrixXd approx(MatrixXd R){
+        for(int i=0;i<R.rows();i++){
+                for(int j=0;j<R.cols();j++){
+                        if(abs(R(i,j))<0.00001){
+                                R(i,j)=0;
+                        }
+                }
+        }
+        return R;
+}
+
 Vector3d XD(Vector3d xe0,Vector3d xef,double t){
         //xe0 << 0.3, 0.3, 0.1;
         //xef << 0.5, 0.5, 0.5;
@@ -322,11 +326,7 @@ Vector3d rotm2eulFDR(Matrix3d R){
 Matrix3d eul2rotmFDR(Vector3d eulXYZ){
     //the input of eul2rotm is a vector with ZYX coordinates so I need to
     //convert it
-    /*
     
-    Vector3d eulZYX(eulXYZ(2), eulXYZ(1), eulXYZ(0));
-    Matrix3d R = EulerAnglesZYX(eulZYX);
-    */
     Vector3d eulZYX;
     
     eulZYX(2) = eulXYZ(0);
@@ -345,18 +345,6 @@ Matrix3d eul2rotmFDR(Vector3d eulXYZ){
          c2*s3, c1*c3 + s1*s2*s3, c1*s2*s3 - c3*s1,
          -s2, c2*s1, c1*c2;
     return R;
-    /*
-
-      // Convert to ZYX Euler angles
-    Vector3d eulZYX(eulXYZ(2), eulXYZ(1), eulXYZ(0));
-
-    // Convert to rotation matrix
-    Matrix3d R;
-    R = AngleAxisd(eulZYX(0), Vector3d::UnitZ()) *
-        AngleAxisd(eulZYX(1), Vector3d::UnitY()) *
-        AngleAxisd(eulZYX(2), Vector3d::UnitX());
-
-    return R;*/
 }
 
 Vector3d computeOrientationErrorW(Matrix3d w_R_e, Matrix3d w_R_d){
@@ -382,77 +370,8 @@ Vector3d computeOrientationErrorW(Matrix3d w_R_e, Matrix3d w_R_d){
         return errorW;
 }
 
-//definire xef e xe0, phied e phief
-/*
 
-Matrix63d pseudoInversa(Matrix36d A){
-        //cout<<A<<"\n";
-        cout<<((A.transpose()*A)).determinant();
-        Matrix63d pinv=((A.transpose()*A).inverse())*A.transpose();
-        return pinv;
-}
-
-Vector6d invDiffKinematiControl(Vector6d qk, Vector3d xe, Vector3d xd,  Vector3d vd, Matrix3d K){
-        
-        Matrix6d J=ur5Jac(qk);
-        Matrix36d J1;
-        J1 <<  J.block(0, 0, 3, 6);
-        //cout <<J1<<"\n";
-
-        Matrix63d dotQ=pseudoInversa(J1);
-        //cout <<"cane\n";
-        //cout<< dotQ;
-        Vector3d prod=(vd+K*(xd-xe));
-        return dotQ*prod;
-}
-
-MatrixXd invDiffKinematicControlSim(Vector3d xd, Vector6d TH0, Matrix3d K, double minT, double maxT, double Dt){
-        //cout <<"gatto\n";
-        int L=(int)(maxT-minT)/Dt+1;
-        
-        VectorXd T;
-
-        for(int i=0;i<L;i++){ 
-              T.conservativeResize(T.rows()+1, T.cols());
-              T.row(T.rows()-1) << i*Dt;
-        }
-        cout << T <<"endl";
-        //cout <<"gatto\n";
-        Vector6d qk=TH0;
-        MatrixXd q=qk;
-
-        for(int t=1;t<L;t++){
-                Vector3d xe=ur5Direct(qk);
-
-                Vector3d vd;
-                vd=(XD(T(t))-XD(T(t)-Dt))/Dt;
-                cout <<"gatto\n";
-                Vector6d dotqk = invDiffKinematiControl(qk, xe, XD(T(t)),  vd, K);
-                cout <<"cane\n";
-                Vector6d qk1 = qk + dotqk*Dt; 
-
-                
-
-                //primo modo (non funziona)
-                //q << q,qk1;
-                //qk << qk1;
-
-
-                //altro modo (verificare quale funziona) (non funziona il push_back)
-                //q.push_back(qk1);
-                //qk = qk1;
-
-                //q.resize(q.rows()+1, NoChange);
-                //q.row(q.rows()-1) = qk1;
-                
-        }
-
-        return q;
-
-}
-*/
 Vector6d invDiffKinematiControlComplete(Vector6d q, Vector3d xe, Vector3d xd, Vector3d vd, Matrix3d w_R_e, Vector3d phid, Vector3d phiddot, Matrix3d Kp, Matrix3d Kphi){
-        //cout<<"f\n";
         
         Matrix3d w_R_d = eul2rotmFDR(phid);
 
@@ -466,9 +385,9 @@ Vector6d invDiffKinematiControlComplete(Vector6d q, Vector3d xe, Vector3d xd, Ve
         //cout<<"Err: "<<error_o.transpose()<<endl;
 
         Matrix6d J=ur5Jac(q);
-        double psid = phid(0);//psi
+        double psid = phid(0);   //psi
         double thetad = phid(1); //theta
-        double phidd = phid(2); //phi
+        double phidd = phid(2);  //phi
 
         Matrix3d T;
         T <<    cos(thetad)*cos(phidd), -sin(phidd), 0,
@@ -477,9 +396,6 @@ Vector6d invDiffKinematiControlComplete(Vector6d q, Vector3d xe, Vector3d xd, Ve
 
         
         Vector3d omega_dot = T*phiddot;
-
-        
-
 
         Vector3d v1=vd+Kp*(xd-xe);
         //Vector3d v2=omega_dot+Kphi*error_o;
@@ -495,7 +411,6 @@ Vector6d invDiffKinematiControlComplete(Vector6d q, Vector3d xe, Vector3d xd, Ve
         return dotQ;
 
 }
-
 
 
 MatrixXd invDiffKinematicControlSimComplete(Vector3d xe0,Vector3d xef,Vector3d phie0,Vector3d phief,Vector6d TH0, Matrix3d Kp, Matrix3d Kphi, double minT, double maxT, double Dt){
@@ -544,8 +459,6 @@ MatrixXd invDiffKinematicControlSimComplete(Vector3d xe0,Vector3d xef,Vector3d p
 
               //cout<<ur5Direct(qk1).transpose()<<endl;
 
-              //cout<<"prima "<<qk1.transpose()<<endl;
-
               Vector3d p_temp=ur5Direct(qk1);
               //cout<<p_temp.transpose()<<endl;
               double p_temp_z=check_z(p_temp(2));
@@ -555,39 +468,17 @@ MatrixXd invDiffKinematicControlSimComplete(Vector3d xe0,Vector3d xef,Vector3d p
               p_temp1 << p_check(0),p_check(1),p_temp_z;
 
               qk1=ur5Inverse(p_temp1).row(7);
-              //cout<<"dopo "<<qk1.transpose()<<endl;
+     
+              //cout<<qk1.transpose()<<endl;
 
-                //cout<<"funz\n"; 
-                //ultima parte
-                //primo modo (non funziona)
-                //q << q,qk1;
-                //qk << qk1;
-/*
-                q.conservativeResize(q.rows()+1, NoChange);
-                //q << q,qk1.transpose();
-                //q.row(q.rows()-1) = qk1.transpose();
-                q.row(q.rows()-1) << qk1(0);
-                q.row(q.rows()-1) << qk1(1);
-                q.row(q.rows()-1) << qk1(2);
-                q.row(q.rows()-1) << qk1(3);
-                q.row(q.rows()-1) << qk1(4);
-                q.row(q.rows()-1) << qk1(5);
-*/
-             
-                
-                //cout<<qk1.transpose()<<endl;
-
-                q.conservativeResize(q.rows()+1, NoChange);
-                for(int i=0;i<6;i++){
-                        q(t,i) = qk1(i);
-                }
+              q.conservativeResize(q.rows()+1, NoChange);
+              for(int i=0;i<6;i++){
+                    q(t,i) = qk1(i);
+              }
 
 
-                qk=qk1;
-                //cout<<qk.transpose()<<endl;
-                //cout<<q;
-                //cout<<"----\n";
-                //break;
+              qk=qk1;
+              //cout<<qk.transpose()<<endl;
 
         }
 
@@ -596,7 +487,7 @@ MatrixXd invDiffKinematicControlSimComplete(Vector3d xe0,Vector3d xef,Vector3d p
         return q;
 
 }
-
+/*
 
 
 int main(){
@@ -664,4 +555,4 @@ int main(){
         cout<<ur5Direct(differentialTH.row(differentialTH.rows()-1))<<endl;
         //cout<<differentialTH.rows()<<endl;
         //cout<<differentialTH.row(differentialTH.rows()-1)<<endl;
-}
+}*/

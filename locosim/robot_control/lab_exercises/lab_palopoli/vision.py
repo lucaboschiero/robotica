@@ -25,7 +25,7 @@ class vision():
         #self.base_offset = np.array([0.5, 0.35, 1.75])
         self.point_cloud = PointCloud2()
         self.voxel_size = 0.003
-        self.models="/home/lucaboschiero/ros_ws/src/locosim/ros_impedance_controller/worlds/models"
+        self.models="/home/mauro/ros_ws/src/locosim/ros_impedance_controller/worlds/models"
         #self.model_names=np.array(["X1-Y1-Z2", "X1-Y2-Z1", "X1-Y2-Z2", "X1-Y2-Z2-CHAMFER", "X1-Y2-Z2-TWINFILLET", "X1-Y3-Z2", "X1-Y3-Z2-FILLET", "X1-Y4-Z1", "X1-Y4-Z2", "X2-Y2-Z2", "X2-Y2-Z2-FILLET"])
 
 
@@ -151,10 +151,10 @@ class vision():
 
     def detection_callback(self, msg):
         pubco = ros.Publisher("/coordinates", Coord, queue_size=100)
-        points_list = []
         coordinate = Coord()
 
         for i in range(10):
+            points_list = []
             if 50 < msg.bounding_boxes[i].xmin < 2000:
                 x_min = msg.bounding_boxes[i].xmin
                 x_max = msg.bounding_boxes[i].xmax

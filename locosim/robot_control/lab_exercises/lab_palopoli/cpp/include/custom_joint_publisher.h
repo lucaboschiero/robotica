@@ -3,14 +3,16 @@
 
 
 #include "ros/ros.h"
-#include <sensor_msgs/JointState.h>
 #include <std_msgs/Float64MultiArray.h>
 #include <custom_msgs/Coord.h>
-#include <custom_msgs/PosRobot.h>
 #include <Eigen/Dense>
 #include <Eigen/Core>
 #include <realtime_tools/realtime_publisher.h>
-#include "circlecheck.h"
+#include <math.h>
+#include <std_msgs/String.h>
+#include <cstring>
+#include <iostream>
+#include "ur5kinematics.h"
 
 using namespace std;
 using namespace Eigen;
@@ -19,44 +21,40 @@ typedef  Matrix<double, 6, 1> Vector6d;
 typedef  Matrix<double, 11, 6> Matrix116d;
 
 
-// Methods
-void send_des_jstate(const Vector6d & joint_pos, const Vector3d & gripper_joint);
-Vector6d secondOrderFilter(const Vector6d & input, const double rate, const double settling_time);
-
 // Variables
-Vector6d q_des = Vector6d::Zero();
-Vector6d qd_des = Vector6d::Zero();
-Vector6d tau_ffwd = Vector6d::Zero();
 Vector6d filter_1 = Vector6d::Zero();
 Vector6d filter_2 = Vector6d::Zero();
 Vector6d q_des0 = Vector6d::Zero();
 Matrix116d detected_pos_blocchetti=Matrix116d::Zero(10,6);
-
-
-const Vector3d shift(0.5,0.35,0.12);
-const Vector3d final_stand(-0.4,-0.2,0.73);
-const Vector3d up_down_di(0.0,0.0,0.12);
-const Vector3d pos_intermedia(-0.2,-0.35,0.61);
-
+bool apri = true;
 
 double  loop_time = 0.;
 double  loop_frequency = 1000.;
-bool apri = true;
+
+//costanti
+const Vector3d shift(0.5,0.35,0.12);
+const Vector3d final_stand(-0.4,-0.2,0.73);
+const Vector3d up_down_di(0.0,0.0,0.12);
+
+
 
 // Publishers
-//std::shared_ptr<realtime_tools::RealtimePublisher<sensor_msgs::JointState> > pub_des_jstate_sim_rt;
 ros::Publisher pub_des_jstate;
 std_msgs::Float64MultiArray jointState_msg_robot;
 
-//void detect(const custom_msgs::Coord::ConstPtr& msg);
+
+//metodi
+void send_des_jstate(const Vector6d & joint_pos, const Vector3d & gripper_joint);
+void initFilter(const Vector6d & joint_pos);
+Vector6d secondOrderFilter(const Vector6d & input, const double rate, const double settling_time);
+void detect(const custom_msgs::Coord::ConstPtr& msg);
 bool homing();
 Vector6d rotate(Vector6d q, Vector3d rot);
 Vector3d open_gripper(double d);
-void detect(const custom_msgs::Coord::ConstPtr& msg);
 Vector6d moveTo(Vector3d pos_iniziale,Vector3d pos_finale, Vector3d rot_iniziale, Vector3d rot_finale);
 bool grasp(Vector6d q);
 void motionPlan(Vector6d pos_blocchetto,int classe);
 
-int use_gripper = 1;        //0 -> no gripper    1-> soft gripper     2-> 3-finger gripper
 
+int use_gripper = 1;        //0 -> no gripper    1-> soft gripper     2-> 3-finger gripper
 #endif
