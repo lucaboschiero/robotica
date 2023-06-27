@@ -1,16 +1,10 @@
 from detection_msgs.msg import BoundingBoxes
-from std_msgs.msg import String
 import numpy as np
-import cv2
-from cv_bridge import CvBridge
-from sensor_msgs.msg import Image
 import rospy as ros
 from sensor_msgs import point_cloud2
 from sensor_msgs.msg import PointCloud2
 from robotica.msg import Coord
 import open3d as o3d
-from transforms3d.euler import mat2euler
-from transforms3d.euler import euler2mat
 import time
 
 class vision():
@@ -26,7 +20,6 @@ class vision():
         self.point_cloud = PointCloud2()
         self.voxel_size = 0.003
         self.models="/home/lucaboschiero/ros_ws/src/locosim/ros_impedance_controller/worlds/models"
-        #self.model_names=np.array(["X1-Y1-Z2", "X1-Y2-Z1", "X1-Y2-Z2", "X1-Y2-Z2-CHAMFER", "X1-Y2-Z2-TWINFILLET", "X1-Y3-Z2", "X1-Y3-Z2-FILLET", "X1-Y4-Z1", "X1-Y4-Z2", "X2-Y2-Z2", "X2-Y2-Z2-FILLET"])
 
     def pointcloud_callback(self, msg):
         # Salva la pointcloud della camera
@@ -38,11 +31,12 @@ class vision():
         pointCloud_down = o3d.geometry.PointCloud.voxel_down_sample(pointCloud, self.voxel_size)
 
         # Calcolare le normali per ogni punto nella point cloud ridotta 
-        radius = 0.005
+        radius = self.voxel_size * 2
         o3d.geometry.PointCloud.estimate_normals(
             pointCloud_down,
             o3d.geometry.KDTreeSearchParamHybrid(radius=radius, max_nn=30))
-
+        
+        radius = self.voxel_size * 5
         # Calcola le feature FPFH sulla point cloud ridotta 
         pointCloud_fpfh = o3d.pipelines.registration.compute_fpfh_feature(
             pointCloud_down,
@@ -55,7 +49,7 @@ class vision():
 
 
         # Esegue la registrazione RANSAC basata sulla corrispondenza delle feature
-        distance_threshold = self.voxel_size
+        distance_threshold = self.voxel_size * 1.5
 
         result = o3d.pipelines.registration.registration_ransac_based_on_feature_matching(
             inputPointCloud_down, stlPointCloud_down, inputPointCloud_fpfh, stlPointCloud_fpfh, True, distance_threshold,
@@ -65,7 +59,7 @@ class vision():
                     distance_threshold)
             ], o3d.pipelines.registration.RANSACConvergenceCriteria(1000000, 500))
         
-
+        distance_threshold = self.voxel_size * 0.4
         result1 = o3d.pipelines.registration.registration_icp(
             inputPointCloud_down, stlPointCloud_down, distance_threshold, result.transformation,
             o3d.pipelines.registration.TransformationEstimationPointToPlane())
