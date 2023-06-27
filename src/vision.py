@@ -1,4 +1,3 @@
-import rospy
 from detection_msgs.msg import BoundingBoxes
 from std_msgs.msg import String
 import numpy as np
@@ -8,85 +7,79 @@ from sensor_msgs.msg import Image
 import rospy as ros
 from sensor_msgs import point_cloud2
 from sensor_msgs.msg import PointCloud2
-from robotica.msg import Coord
+from custom_msgs.msg import Coord
 import open3d as o3d
 from transforms3d.euler import mat2euler
 from transforms3d.euler import euler2mat
+import time
 
 class vision():
 
     def __init__(self):
-        ## Rotation matrix from Camera to World frame
+        ## Matrice di rotazione da camera frame a world frame
         self.w_R_c = np.array([[0.0, -0.49948, 0.86632],
                                [-1.0, 0.0, 0.0],
                               [-0.0, -0.86632, -0.49948]])
-        ## Traslation vector from Robot to Camera frame
+        ## Vettore di traslazione da robot frame a camera frame
         self.x_c = np.array([-0.4, 0.59, 1.4])
-        #self.base_offset = np.array([0.5, 0.35, 1.75])
+
         self.point_cloud = PointCloud2()
         self.voxel_size = 0.003
-        self.models="/home/mauro/ros_ws/src/locosim/ros_impedance_controller/worlds/models"
+        self.models="/home/lucaboschiero/ros_ws/src/locosim/ros_impedance_controller/worlds/models"
         #self.model_names=np.array(["X1-Y1-Z2", "X1-Y2-Z1", "X1-Y2-Z2", "X1-Y2-Z2-CHAMFER", "X1-Y2-Z2-TWINFILLET", "X1-Y3-Z2", "X1-Y3-Z2-FILLET", "X1-Y4-Z1", "X1-Y4-Z2", "X2-Y2-Z2", "X2-Y2-Z2-FILLET"])
 
-
     def pointcloud_callback(self, msg):
+        # Salva la pointcloud della camera
         self.point_cloud = msg
 
-    def image_callback(self, msg):
-        bridge = CvBridge()
-        self.img = bridge.imgmsg_to_cv2(msg, desired_encoding='bgr8')
+    def process_pointCloud(self, pointCloud):
 
+        #La pointcloud viene sottocampionata
+        pointCloud_down = o3d.geometry.PointCloud.voxel_down_sample(pointCloud, self.voxel_size)
 
-    def pointCloudRegion(self, xmin, ymin, xmax, ymax):
-        x_min = int(np.ceil(xmin))
-        y_min = int(np.ceil(ymin))
-        x_max = int(np.floor(xmax))
-        y_max = int(np.floor(ymax))
-
-        uv = [(x, y) for y in range(y_min, y_max + 1) for x in range(x_min, x_max + 1)]
-
-        points = []
-        for data in point_cloud2.read_points(self.point_cloud, field_names=['x', 'y', 'z'], skip_nans=False, uvs=uv):
-            points.append([data[0], data[1], data[2]])
-
-        return points
-
-    def process_pointCloud(self, pcd):
-
-        pcd_down = o3d.geometry.PointCloud.voxel_down_sample(pcd, self.voxel_size)
-
+        # Calcolare le normali per ogni punto nella point cloud ridotta 
         radius_normal = self.voxel_size * 2
         o3d.geometry.PointCloud.estimate_normals(
-            pcd_down,
+            pointCloud_down,
             o3d.geometry.KDTreeSearchParamHybrid(radius=radius_normal, max_nn=30))
 
+        # Calcola le feature FPFH sulla point cloud ridotta 
         radius_feature = self.voxel_size * 5
-        pcd_fpfh = o3d.pipelines.registration.compute_fpfh_feature(
-            pcd_down,
+        pointCloud_fpfh = o3d.pipelines.registration.compute_fpfh_feature(
+            pointCloud_down,
             o3d.geometry.KDTreeSearchParamHybrid(radius=radius_feature, max_nn=100))
-        return pcd_down, pcd_fpfh
+        
+        return pointCloud_down, pointCloud_fpfh
 
-    def registration(self, source_down, target_down, source_fpfh, target_fpfh):
+    def registration(self, inputPointCloud_down, stlPointCloud_down, inputPointCloud_fpfh, stlPointCloud_fpfh):
+        # Esegue la registrazione tra due point cloud utilizzando Open3D
 
+
+        # Esegue la registrazione RANSAC basata sulla corrispondenza delle feature
         distance_threshold = self.voxel_size * 1.5
 
         result = o3d.pipelines.registration.registration_ransac_based_on_feature_matching(
-            source_down, target_down, source_fpfh, target_fpfh, True, distance_threshold,
+            inputPointCloud_down, stlPointCloud_down, inputPointCloud_fpfh, stlPointCloud_fpfh, True, distance_threshold,
             o3d.pipelines.registration.TransformationEstimationPointToPoint(False), 4, [
                 o3d.pipelines.registration.CorrespondenceCheckerBasedOnEdgeLength(0.9),
                 o3d.pipelines.registration.CorrespondenceCheckerBasedOnDistance(
                     distance_threshold)
             ], o3d.pipelines.registration.RANSACConvergenceCriteria(1000000, 500))
         
+
+        # Esegue la registrazione ICP (Iterative Closest Point) tra le due point cloud. Questo passaggio serve per ottimizzare la registrazione
         distance_threshold = self.voxel_size * 0.4
 
         result1 = o3d.pipelines.registration.registration_icp(
-            source_down, target_down, distance_threshold, result.transformation,
+            inputPointCloud_down, stlPointCloud_down, distance_threshold, result.transformation,
             o3d.pipelines.registration.TransformationEstimationPointToPlane())
         
         return result1
     
     def getModelPath(self, cl):
+
+        # In base alla classe del blocco ritorna il path del modello stl
+
         if cl == "1" :
             return "/model0/meshes/X1-Y1-Z2.stl"
 
@@ -119,106 +112,143 @@ class vision():
         
         elif cl == "9-FILLER" :
             return "/model10/meshes/X2-Y2-Z2-FILLET.stl"
+        
 
-    def pose_estimation(self, object_points, object_class):
-        object_points = np.asarray(object_points)
-        source = o3d.geometry.PointCloud()
-        source.points = o3d.utility.Vector3dVector(object_points)
+    def pointCloudRegion(self, xmin, ymin, xmax, ymax):
+        x_min = int(xmin)
+        y_min = int(ymin)
+        x_max = int(xmax)
+        y_max = int(ymax)
 
+        # Genera un vettore di punti 
+        uv = [(x, y) for y in range(y_min, y_max + 1) for x in range(x_min, x_max + 1)]
+
+        # Trasforma i punti in coordinate x, y e z rispetto al camera frame
+        points = []
+        for data in point_cloud2.read_points(self.point_cloud, field_names=['x', 'y', 'z'], skip_nans=False, uvs=uv):
+            points.append([data[0], data[1], data[2]])
+
+        return points
+
+    def pose_estimation(self, points, object_class):
+        points = np.asarray(points)
+        inputPointCloud = o3d.geometry.PointCloud()
+        inputPointCloud.points = o3d.utility.Vector3dVector(points)
+
+        # Ottiene il path in base al tipo di blocco 
         model_path = self.getModelPath(object_class)
-        # Read the mesh data from the STL file
+        # Legge il file .stl
         stl_file_path = self.models + model_path  # Update the file path accordingly
         try:
+            print(stl_file_path)
             mesh = o3d.io.read_triangle_mesh(stl_file_path)
         except Exception as e:
             print(f"Error reading STL file: {str(e)}")
             return None
 
-        # Sample points uniformly from the mesh to create a point cloud
-        n_points = int(np.size(object_points) * 1.5)
+        # Crea una pointcloud a partire da una mesh tridimensionale utilizzando un campionamento uniforme dei punti sulla mesh.
+        nPoints = int (np.size(points))
 
-        mesh_points = mesh.sample_points_uniformly(number_of_points=n_points)
-        target = o3d.geometry.PointCloud()
-        target.points = mesh_points.points
+        mesh_points = mesh.sample_points_uniformly(number_of_points=nPoints)
+        stlPointCloud = o3d.geometry.PointCloud()
+        stlPointCloud.points = mesh_points.points
 
-        source_down, source_fpfh = self.process_pointCloud(source)
-        target_down, target_fpfh = self.process_pointCloud(target)
+        # Sottodimensiona le due pointcloud e estrae le fpfh features
+        inputPointCloud_down, inputPointCloud_fpfh = self.process_pointCloud(inputPointCloud)
+        stlPointCloud_down, stlPointCloud_fpfh = self.process_pointCloud(stlPointCloud)
 
-        result = self.registration(source_down, target_down, source_fpfh, target_fpfh)
-        #print("Result: "+result)
-        R = result.transformation[:3, :3].copy()
+        # Esegue la registrazione delle pointcloud
+        result = self.registration(inputPointCloud_down, stlPointCloud_down, inputPointCloud_fpfh, stlPointCloud_fpfh)
+
+        # Ottiene la matrice di rotazione
+        R = result.transformation[:3, :3]
+
         return R
 
     def detection_callback(self, msg):
+
+        # Topic dove pubblica le coordinate dei blocchi e la classe
         pubco = ros.Publisher("/coordinates", Coord, queue_size=100)
+
+        # Crea un messaggio dove salvare i dati da pubblicare
         coordinate = Coord()
 
-        for i in range(10):
+        print("Detection time: ",msg.time)
+
+        #salva il tempo di inizio
+        start_time = time.time()
+
+        # Scorre tra gli elementi trovati da Yolo
+        for i in range(msg.count):
             points_list = []
-            if 50 < msg.bounding_boxes[i].xmin < 2000:
-                x_min = msg.bounding_boxes[i].xmin
-                x_max = msg.bounding_boxes[i].xmax
-                y_min = msg.bounding_boxes[i].ymin
-                y_max = msg.bounding_boxes[i].ymax
-                u = int((msg.bounding_boxes[i].xmin + msg.bounding_boxes[i].xmax) / 2)
-                v = int((msg.bounding_boxes[i].ymin + msg.bounding_boxes[i].ymax) / 2)
-                cl = (msg.bounding_boxes[i].Class)
-                #print(cl)
-                for data in point_cloud2.read_points(self.point_cloud, field_names=['x', 'y', 'z'], skip_nans=False, uvs=[(u, v)]):
-                    points_list.append([data[0], data[1], data[2]])
-                    print("Data Optical frame: ", points_list)
-                pointW = self.w_R_c.dot(points_list[0]) + self.x_c
-                #print("Data World frame: ", pointW)
-                coordinate.x = pointW[0]
-                coordinate.y = pointW[1]
-                coordinate.z = pointW[2]
-                coordinate.cl = cl
 
-                point_region = self.pointCloudRegion(x_min, y_min, x_max, y_max)
+            x_min = msg.bounding_boxes[i].xmin
+            x_max = msg.bounding_boxes[i].xmax
+            y_min = msg.bounding_boxes[i].ymin
+            y_max = msg.bounding_boxes[i].ymax
 
-                # Transform from Camera to World coordinate system
-                points = []
-                for point in point_region:
-                    points.append(self.w_R_c.dot(point) + self.x_c)
+            # Riceve i punti della bounding box del blocco e calcola u e v 
+            u = int((msg.bounding_boxes[i].xmin + msg.bounding_boxes[i].xmax) / 2)
+            v = int((msg.bounding_boxes[i].ymin + msg.bounding_boxes[i].ymax) / 2)
+            cl = (msg.bounding_boxes[i].Class)
 
-                # Get middle point
-                point_middle = np.mean(points, axis=0)
-                print(" Center : ", point_middle)
+            # Trasnforma u e v in coordinate del camera frame
+            for data in point_cloud2.read_points(self.point_cloud, field_names=['x', 'y', 'z'], skip_nans=False, uvs=[(u, v)]):
+                points_list.append([data[0], data[1], data[2]])
+                print("Data Optical frame: ", points_list)
+            
+            # Trasforma le coordinate nel world frame
+            pointW = self.w_R_c.dot(points_list[0]) + self.x_c
 
-                # Apply offset to Object center
-                points_traslated = []
-                for point in points:
-                    points_traslated.append((point - point_middle))
+            # Salva x, y, z e la classe del blocco per poi pubblicarle
+            coordinate.x = pointW[0]
+            coordinate.y = pointW[1]
+            coordinate.z = pointW[2]
+            coordinate.cl = cl
+            
+            # Ottiene i punti della pointcloud del blocco
+            point_region = self.pointCloudRegion(x_min, y_min, x_max, y_max)
 
-                #print(points_traslated)
-                # Get the rotation matrix and translation vector from the detected pointcloud and the associated .stl model
-                rotation_matrix = self.pose_estimation(points_traslated, cl)
+            # Trasforma i punti dal frame della camera al world frame
+            points = []
+            for point in point_region:
+                points.append(self.w_R_c.dot(point) + self.x_c)
 
-                print("Rotation matrix: ",rotation_matrix)
-                points_traslatedR = []
-                for point in points_traslated:
-                    points_traslatedR.append(rotation_matrix.dot(point))
+            # Ottiene il centro dei punti
+            pointMiddle = np.mean(points, axis=0)
 
-                
-                #roll, pitch, yaw = mat2euler(rotation_matrix, 'rzyx')  # 'rzyx' specifies the rotation order
-                #coordinate.roll= roll
-                #coordinate.pitch = pitch
-                #coordinate.yaw = yaw
-                #print(coordinate)
-                coordinate.R = rotation_matrix.flatten().tolist()
+            # Applica l'offset di tutti i punti dal centro
+            pointsOffset = []
+            for point in points:
+                pointsOffset.append((point - pointMiddle))
 
+            # Ottiene la matrice di rotazione 
+            rotation_matrix = self.pose_estimation(pointsOffset, cl)
+            print("Rotation matrix: ",rotation_matrix)
+
+            # Inserisce nel messaggio la matrice di rotazione
+            coordinate.R = rotation_matrix.flatten().tolist()
+
+            end_time = time.time()
+            # Calcola il tempo trascorso in secondi
+            total_time = end_time - start_time
+
+            print("Orientation detection time:", total_time, "secondi")
+
+            # Pubblica il messaggio
             pubco.publish(coordinate)
 
 
 
 
 def main(p):
-    global pub
-    ros.init_node("listener")
-    ros.Subscriber("/yolov5/detections", BoundingBoxes, p.detection_callback)
-    ros.Subscriber("/ur5/zed_node/left_raw/image_raw_color", Image, callback=p.image_callback, queue_size=1)
 
+    # Vengono definiti i topic a cui è sottoscritto il codice
+    ros.init_node("listener")
+
+    ros.Subscriber("/yolov5/detections", BoundingBoxes, p.detection_callback)
     ros.Subscriber("/ur5/zed_node/point_cloud/cloud_registered", PointCloud2, p.pointcloud_callback)
+
     ros.spin()
 
 

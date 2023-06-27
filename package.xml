@@ -1,10 +1,10 @@
 <?xml version="1.0"?>
 <package format="2">
-  <name>lab_palopoli</name>
+  <name>robotica</name>
   <version>0.0.0</version>
-  <description>Colleciton of scripts for Palopoli's lab</description>
-
-  <maintainer email="mfocchi@todo.todo">mfocchi</maintainer>
+ <description> Ur5 project group B  </description> 
+ 
+ <maintainer email="luca.boschiero@studenti.unitn.it">lucaboschiero</maintainer>
 
   <license>TODO</license>
 

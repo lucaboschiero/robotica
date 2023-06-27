@@ -1,7 +1,7 @@
 #include "include/ur5kinematics.h"
 
 
-Matrix4d T10(double th){
+Matrix4d T10(double th){                                       //homogeneoux transformation matrixes
         Matrix4d T10f;
         T10f << cos(th), -sin(th), 0, 0,
                 sin(th), cos(th), 0, 0,
@@ -51,7 +51,7 @@ Matrix4d T65(double th){
 }
 
 
-Vector3d ur5Direct(Vector6d Th){
+Vector3d ur5Direct(Vector6d Th){                                   //cinematica diretta
 
         A << 0.0, -0.425, -0.3922, 0.0, 0.0, 0.0; 
         D << 0.1625, 0.0, 0.0, 0.1333, 0.0997, 0.0996;
@@ -63,12 +63,12 @@ Vector3d ur5Direct(Vector6d Th){
         T54m=T54(Th(4));
         T65m=T65(Th(5));
 
-        Matrix4d T06 =T10m*T21m*T32m*T43m*T54m*T65m;
+        Matrix4d T06 =T10m*T21m*T32m*T43m*T54m*T65m;              //homogeneoux transormation matrix 
 
         Vector3d pe;
-        pe << T06(0,3),T06(1,3),T06(2,3);
+        pe << T06(0,3),T06(1,3),T06(2,3);                           //posizione end-effector
 
-        Re << T06(0,0),T06(0,1),T06(0,2),
+        Re << T06(0,0),T06(0,1),T06(0,2),                          //matrice di rotazione end-effector
               T06(1,0),T06(1,1),T06(1,2),
               T06(2,0),T06(2,1),T06(2,2);
 
@@ -76,8 +76,8 @@ Vector3d ur5Direct(Vector6d Th){
         return pe; 
 
 }
-
-Matrix86d ur5Inverse(Vector3d pe){
+  
+Matrix86d ur5Inverse(Vector3d pe){                              //cinematica inversa
 
         
 
@@ -90,15 +90,12 @@ Matrix86d ur5Inverse(Vector3d pe){
               0,0,-1,0,
               0,0,0,1;
 
-        //Eigen::Vector3d peInv=R*pe;
 
         Matrix4d T60;
         T60 <<  1,0,0,pe(0),
                 0,1,0,pe(1),
                 0,0,1,pe(2),
                 0,0,0,1;
-
-        //Matrix4d T60I=T60;
 
         Vector4d mul;
         mul << 0,0,-D(5),1;
@@ -214,7 +211,7 @@ Matrix86d ur5Inverse(Vector3d pe){
 }
 
 
-Matrix6d ur5Jac(Vector6d Th){
+Matrix6d ur5Jac(Vector6d Th){                              //calclolo matrice Jacobiana
         
         A << 0.0, -0.425, -0.3922, 0.0, 0.0, 0.0; 
         D << 0.1625, 0.0, 0.0, 0.1333, 0.0997, 0.0996;
@@ -278,42 +275,26 @@ Matrix6d ur5Jac(Vector6d Th){
 
         return J;
 }
-/*
-Vector3d XD(double t){
-        return Vector3d(0.2*cos(OMEGA*t), 0.01, 0.2*sin(OMEGA*t));
-}
-*/
 
-MatrixXd approx(MatrixXd R){
-        for(int i=0;i<R.rows();i++){
-                for(int j=0;j<R.cols();j++){
-                        if(abs(R(i,j))<0.00001){
-                                R(i,j)=0;
-                        }
-                }
-        }
-        return R;
-}
 
-Vector3d XD(Vector3d xe0,Vector3d xef,double t){
-        //xe0 << 0.3, 0.3, 0.1;
-        //xef << 0.5, 0.5, 0.5;
+
+Vector3d XD(Vector3d xe0,Vector3d xef,double t){                    //calcolo posizione desiderata al tempo t
+
         if (t > TMAX)
                 return xef;
         else
                 return (t/TMAX)*xef + (1-(t/TMAX))*xe0;
 }
 
-Vector3d Phid(Vector3d phie0,Vector3d phief,double t){
-        //phie0 << 0, 0, 0;
-        //phief << M_PI/4, M_PI/4, M_PI/4;
+Vector3d Phid(Vector3d phie0,Vector3d phief,double t){            //calcolo orientazione desiderata al tempo t 
+   
         if (t > TMAX)
                 return phief;
         else
                 return (t/TMAX)*phief + (1-(t/TMAX))*phie0;
 }
 
-Vector3d rotm2eulFDR(Matrix3d R){
+Vector3d rotm2eulFDR(Matrix3d R){                                   //conversione da matrice di rotazione a EulerAngles
     //the output of rotm2eul is a vector with ZYX coordinates so I need to
     //convert it
     Vector3d eulZYX=R.eulerAngles(2,1,0);
@@ -323,7 +304,7 @@ Vector3d rotm2eulFDR(Matrix3d R){
     return eulXYZ;
 }
 
-Matrix3d eul2rotmFDR(Vector3d eulXYZ){
+Matrix3d eul2rotmFDR(Vector3d eulXYZ){                            //conversione da EulerAngles a matrice di rotazione
     //the input of eul2rotm is a vector with ZYX coordinates so I need to
     //convert it
     
@@ -347,7 +328,7 @@ Matrix3d eul2rotmFDR(Vector3d eulXYZ){
     return R;
 }
 
-Vector3d computeOrientationErrorW(Matrix3d w_R_e, Matrix3d w_R_d){
+Vector3d computeOrientationErrorW(Matrix3d w_R_e, Matrix3d w_R_d){                //calcolo errore di orientazione tra orientazione attuale e desiderata
         Matrix3d e_R_d = w_R_e.transpose()*w_R_d;
 
         double cos_dtheta = (e_R_d(0,0)+e_R_d(1,1)+e_R_d(2,2)-1.0)/2.0;
@@ -371,20 +352,18 @@ Vector3d computeOrientationErrorW(Matrix3d w_R_e, Matrix3d w_R_d){
 }
 
 
-Vector6d invDiffKinematiControlComplete(Vector6d q, Vector3d xe, Vector3d xd, Vector3d vd, Matrix3d w_R_e, Vector3d phid, Vector3d phiddot, Matrix3d Kp, Matrix3d Kphi){
+Vector6d invDiffKinematiControlComplete(Vector6d q, Vector3d xe, Vector3d xd, Vector3d vd, Matrix3d w_R_e, Vector3d phid, Vector3d phiddot, Matrix3d Kp, Matrix3d Kphi){            //calcolo dotq per cinematica differenziale inversa
         
         Matrix3d w_R_d = eul2rotmFDR(phid);
 
-        Vector3d error_o = computeOrientationErrorW(w_R_e, w_R_d);
+        Vector3d error_o = computeOrientationErrorW(w_R_e, w_R_d);      //errore di orientazione per applicare il controllo 
 
         
         if(error_o.norm()>0.1){
              error_o=0.1*error_o.normalized();   
         }
-        
-        //cout<<"Err: "<<error_o.transpose()<<endl;
 
-        Matrix6d J=ur5Jac(q);
+        Matrix6d J=ur5Jac(q);                              //calcolo matrice jacobiana
         double psid = phid(0);   //psi
         double thetad = phid(1); //theta
         double phidd = phid(2);  //phi
@@ -397,23 +376,23 @@ Vector6d invDiffKinematiControlComplete(Vector6d q, Vector3d xe, Vector3d xd, Ve
         
         Vector3d omega_dot = T*phiddot;
 
-        Vector3d v1=vd+Kp*(xd-xe);
+        Vector3d v1=vd+Kp*(xd-xe);                          //fattore per controllo posizione
         //Vector3d v2=omega_dot+Kphi*error_o;
-        Vector3d v2=Kphi*error_o;
+        Vector3d v2=Kphi*error_o;                          //fattore per controllo orientazione
         
 
         Vector6d v1v2;
         v1v2 << v1(0),v1(1),v1(2),v2(0),v2(1),v2(2);
 
         Matrix6d Id = Matrix6d::Identity()*1e-06;
-        Vector6d dotQ=((J+Id).inverse())*v1v2;
+        Vector6d dotQ=((J+Id).inverse())*v1v2;                //calcolo dotq con controllo
 
         return dotQ;
 
 }
 
-
-MatrixXd invDiffKinematicControlSimComplete(Vector3d xe0,Vector3d xef,Vector3d phie0,Vector3d phief,Vector6d TH0, Matrix3d Kp, Matrix3d Kphi, double minT, double maxT, double Dt){
+ 
+MatrixXd invDiffKinematicControlSimComplete(Vector3d xe0,Vector3d xef,Vector3d phie0,Vector3d phief,Vector6d TH0, Matrix3d Kp, Matrix3d Kphi, double minT, double maxT, double Dt){           //cinematica differenziale inversa
         
         int L=(int)(maxT-minT)/Dt+1;
         
@@ -427,58 +406,45 @@ MatrixXd invDiffKinematicControlSimComplete(Vector3d xe0,Vector3d xef,Vector3d p
         //cout<<T<<"\n";
 
         Vector6d qk=TH0;
-        MatrixXd q=qk.transpose();
+        MatrixXd q=qk.transpose();            //joint values di partenza  
 
         //cout<<q<<"\n";
 
         for(int t=1;t<L;t++){
 
-              Vector3d xe=ur5Direct(qk);
-              Vector3d phie=rotm2eulFDR(Re);
+              Vector3d xe=ur5Direct(qk);             //calcolo posizione attuale con DK
+              Vector3d phie=rotm2eulFDR(Re);         //conversione in eulerAngles
 
-              /*  
-              cout<<"xe: "<<xe.transpose()<<endl;
-              cout<<"phie: "<<phie.transpose()<<endl;
-              cout<<"xe0: "<<xe0.transpose()<<endl;  
-              cout<<"phie0"<<phie0.transpose()<<endl;
-              cout<<Re<<endl;
-              */
 
               Vector3d vd;
-              //vd = (XD(xe0,xef,T(t))-XD(xe0,xef,T(t)-Dt))/Dt;
-              vd = (XD(xe0,xef,T(t)+Dt)-XD(xe0,xef,T(t)))/Dt;
+              vd = (XD(xe0,xef,T(t)+Dt)-XD(xe0,xef,T(t)))/Dt;            //calcolo velocità desiderata
               
               Vector3d phiddot;
-              //phiddot = (Phid(phie0,phief,T(t))-Phid(phie0,phief,T(t)-Dt))/Dt;
-              phiddot = (Phid(phie0,phief,T(t)+Dt)-Phid(phie0,phief,T(t)))/Dt;
+              phiddot = (Phid(phie0,phief,T(t)+Dt)-Phid(phie0,phief,T(t)))/Dt;        //calcolo velocità angolare desiderata
 
-              Vector6d dotqk = invDiffKinematiControlComplete(qk, xe, XD(xe0,xef,T(t)+Dt), vd, Re, Phid(phie0,phief,T(t)+Dt),phiddot, Kp, Kphi);
+              Vector6d dotqk = invDiffKinematiControlComplete(qk, xe, XD(xe0,xef,T(t)+Dt), vd, Re, Phid(phie0,phief,T(t)+Dt),phiddot, Kp, Kphi);       //calcolo dotq
                
 
-              Vector6d qk1 = qk + dotqk*Dt;
+              Vector6d qk1 = qk + dotqk*Dt;       //integrazione numerica per trovare i joint values al tempo t+1
 
-              //cout<<ur5Direct(qk1).transpose()<<endl;
 
               Vector3d p_temp=ur5Direct(qk1);
-              //cout<<p_temp.transpose()<<endl;
-              double p_temp_z=check_z(p_temp(2));
+              double p_temp_z=check_z(p_temp(2));          //controllo che l'end effector non si abbassi troppo
         
-              Vector2d p_check=checkCircleandTranslate(Vector2d(p_temp(0),p_temp(1)));
+              Vector2d p_check=checkCircleandTranslate(Vector2d(p_temp(0),p_temp(1)));      //controllo che non vada in singolarità
               Vector3d p_temp1;
               p_temp1 << p_check(0),p_check(1),p_temp_z;
 
               qk1=ur5Inverse(p_temp1).row(7);
      
-              //cout<<qk1.transpose()<<endl;
 
               q.conservativeResize(q.rows()+1, NoChange);
               for(int i=0;i<6;i++){
-                    q(t,i) = qk1(i);
+                    q(t,i) = qk1(i);           //aggiorno la matrice generando la traiettoria
               }
 
 
               qk=qk1;
-              //cout<<qk.transpose()<<endl;
 
         }
 
@@ -487,72 +453,3 @@ MatrixXd invDiffKinematicControlSimComplete(Vector3d xe0,Vector3d xef,Vector3d p
         return q;
 
 }
-/*
-
-
-int main(){
-        A << 0.0, -0.425, -0.3922, 0.0, 0.0, 0.0; 
-        D << 0.1625, 0.0, 0.0, 0.1333, 0.0997, 0.0996;
-
-
-        cout<<"Direct kinematics\n";
-        Vector6d Th;
-        Th << -0.32 ,  -0.78002  ,  -2.56007  , -1.63004 ,    -1.57004 , 3.49009;
-
-        Vector3d pe=ur5Direct(Th);
-
-        cout<<pe.transpose()<<"\n";
-
-        cout<<"Inverse kinematics\n";
-
-        Vector3d peIniziale;
-        peIniziale << 0.15, -0.19,  0.45;   //-0.3223527113543909, -0.7805794638446351, -2.5675506591796875, -1.6347843609251917, -1.5715253988849085, -1.0017417112933558
-        //peIniziale << 0.3, 0.3, 0.1;
-
-
-        Vector3d pe1;
-        pe1 << 0.8, 0.3, 0.85;   //3.51465 -0.760302   1.84325   1.98053   1.20247  -4.69833
-
-        Matrix86d Thresult=ur5Inverse(peIniziale);
-
-        for(int i=0;i<8;i++){
-                for(int j=0;j<6;j++){
-                        cout<<Thresult(i,j)<<"\t";
-                }
-                cout<<"\n";
-        }
-
-        cout<<"\n";
-        cout<<"\n";
-
-        for(int i=0;i<3;i++){
-                for(int j=0;j<3;j++){
-                        cout<<Re(i,j)<<"\t";
-                }
-                cout<<"\n";
-        }
-
-        Matrix3d w_R_1 = eul2rotmFDR(Vector3d(0.1,M_PI/2, 0.3));
-        Matrix3d wR2 = Matrix3d::Identity();
-
-        Vector3d err=computeOrientationErrorW(wR2,w_R_1);
-        cout<<err<<endl;
-
-
-        cout<<"hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh\n";
-
-        Matrix3d Kp = Matrix3d::Identity()*5;
-        Matrix3d Kphi = Matrix3d::Identity()*0.1;
-        Vector6d ThFirstRow;
-        ThFirstRow << Thresult(0,0),Thresult(0,1),Thresult(0,2),Thresult(0,3),Thresult(0,4),Thresult(0,5);
-
-        //MatrixXd differentialTH=invDiffKinematicControlSim(pe1,ThFirstRow,K, TMIN, TMAX, DELTAT);
-
-        MatrixXd differentialTH=invDiffKinematicControlSimComplete(peIniziale,pe1,rotm2eulFDR(Re),Vector3d(0.0,0.0,M_PI),ThFirstRow,Kp,Kphi, TMIN, TMAX, DELTAT);
-
-        //cout<<differentialTH<<"\n";
-        cout<<differentialTH.row(differentialTH.rows()-1)<<endl;
-        cout<<ur5Direct(differentialTH.row(differentialTH.rows()-1))<<endl;
-        //cout<<differentialTH.rows()<<endl;
-        //cout<<differentialTH.row(differentialTH.rows()-1)<<endl;
-}*/
