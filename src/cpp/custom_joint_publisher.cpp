@@ -60,7 +60,7 @@ Vector6d secondOrderFilter(const Vector6d &input, const double rate, const doubl
   return filter_2;
 }
 
-void detect(const custom_msgs::Coord::ConstPtr &msg) // funzione che in base ai messaggi ricevuti dalla parte di vision popola la matrice con posizioni e orientamento dei cubetti
+void detect(const robotica::Coord::ConstPtr &msg) // funzione che in base ai messaggi ricevuti dalla parte di vision popola la matrice con posizioni e orientamento dei cubetti
 {
 
   string cl;

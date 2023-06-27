@@ -3,7 +3,7 @@
 
 #include "ros/ros.h"
 #include <std_msgs/Float64MultiArray.h>
-#include <custom_msgs/Coord.h>
+#include <robotica/Coord.h>
 #include <Eigen/Dense>
 #include <Eigen/Core>
 #include <realtime_tools/realtime_publisher.h>
@@ -47,7 +47,7 @@ std_msgs::Float64MultiArray jointState_msg_robot;
 void send_des_jstate(const Vector6d &joint_pos, const Vector3d &gripper_joint);
 void initFilter(const Vector6d &joint_pos);
 Vector6d secondOrderFilter(const Vector6d &input, const double rate, const double settling_time);
-void detect(const custom_msgs::Coord::ConstPtr &msg);
+void detect(const robotica::Coord::ConstPtr &msg);
 bool homing();
 Vector6d rotate(Vector6d q, Vector3d rot);
 Vector3d open_gripper(double d);
