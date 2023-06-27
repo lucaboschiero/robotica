@@ -26,12 +26,3 @@ install(TARGETS custom_joint_publisher ur5kinematics.lib circlecheck.lib
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
-add_executable(point point.cpp)
-target_link_libraries(point ${catkin_LIBRARIES})
-install(TARGETS point
-  ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-  RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-)
-
-add_dependencies(point ${catkin_EXPORTED_TARGETS})
