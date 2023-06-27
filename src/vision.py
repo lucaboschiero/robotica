@@ -7,7 +7,7 @@ from sensor_msgs.msg import Image
 import rospy as ros
 from sensor_msgs import point_cloud2
 from sensor_msgs.msg import PointCloud2
-from custom_msgs.msg import Coord
+from robotica.msg import Coord
 import open3d as o3d
 from transforms3d.euler import mat2euler
 from transforms3d.euler import euler2mat

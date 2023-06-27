@@ -81,8 +81,8 @@ class Ur5Generic(BaseControllerFixed):
         #self.world_name = None # only the workbench
         #self.world_name = 'empty.world'
         #self.world_name = 'palopoli.world'
-        self.world_name = 'task1.world'
-        #self.world_name = 'task2.world'
+        #self.world_name = 'task1.world'
+        self.world_name = 'task2.world'
         #self.world_name = 'task3.world'
 
         print("Initialized ur5 generic  controller---------------------------------------------------------------")
