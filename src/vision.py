@@ -32,22 +32,21 @@ class vision():
         # Salva la pointcloud della camera
         self.point_cloud = msg
 
-    def process_pointCloud(self, pointCloud):
+    def pointCloud_fpfh(self, pointCloud):
 
         #La pointcloud viene sottocampionata
         pointCloud_down = o3d.geometry.PointCloud.voxel_down_sample(pointCloud, self.voxel_size)
 
         # Calcolare le normali per ogni punto nella point cloud ridotta 
-        radius_normal = self.voxel_size * 2
+        radius = 0.005
         o3d.geometry.PointCloud.estimate_normals(
             pointCloud_down,
-            o3d.geometry.KDTreeSearchParamHybrid(radius=radius_normal, max_nn=30))
+            o3d.geometry.KDTreeSearchParamHybrid(radius=radius, max_nn=30))
 
         # Calcola le feature FPFH sulla point cloud ridotta 
-        radius_feature = self.voxel_size * 5
         pointCloud_fpfh = o3d.pipelines.registration.compute_fpfh_feature(
             pointCloud_down,
-            o3d.geometry.KDTreeSearchParamHybrid(radius=radius_feature, max_nn=100))
+            o3d.geometry.KDTreeSearchParamHybrid(radius=radius, max_nn=100))
         
         return pointCloud_down, pointCloud_fpfh
 
@@ -56,7 +55,7 @@ class vision():
 
 
         # Esegue la registrazione RANSAC basata sulla corrispondenza delle feature
-        distance_threshold = self.voxel_size * 1.5
+        distance_threshold = self.voxel_size
 
         result = o3d.pipelines.registration.registration_ransac_based_on_feature_matching(
             inputPointCloud_down, stlPointCloud_down, inputPointCloud_fpfh, stlPointCloud_fpfh, True, distance_threshold,
@@ -66,9 +65,6 @@ class vision():
                     distance_threshold)
             ], o3d.pipelines.registration.RANSACConvergenceCriteria(1000000, 500))
         
-
-        # Esegue la registrazione ICP (Iterative Closest Point) tra le due point cloud. Questo passaggio serve per ottimizzare la registrazione
-        distance_threshold = self.voxel_size * 0.4
 
         result1 = o3d.pipelines.registration.registration_icp(
             inputPointCloud_down, stlPointCloud_down, distance_threshold, result.transformation,
@@ -112,25 +108,9 @@ class vision():
         
         elif cl == "9-FILLER" :
             return "/model10/meshes/X2-Y2-Z2-FILLET.stl"
-        
-
-    def pointCloudRegion(self, xmin, ymin, xmax, ymax):
-        x_min = int(xmin)
-        y_min = int(ymin)
-        x_max = int(xmax)
-        y_max = int(ymax)
-
-        # Genera un vettore di punti 
-        uv = [(x, y) for y in range(y_min, y_max + 1) for x in range(x_min, x_max + 1)]
-
-        # Trasforma i punti in coordinate x, y e z rispetto al camera frame
-        points = []
-        for data in point_cloud2.read_points(self.point_cloud, field_names=['x', 'y', 'z'], skip_nans=False, uvs=uv):
-            points.append([data[0], data[1], data[2]])
-
-        return points
 
     def pose_estimation(self, points, object_class):
+        #Trasforma i punti della pointcloud di input in un vettore open3d
         points = np.asarray(points)
         inputPointCloud = o3d.geometry.PointCloud()
         inputPointCloud.points = o3d.utility.Vector3dVector(points)
@@ -138,7 +118,7 @@ class vision():
         # Ottiene il path in base al tipo di blocco 
         model_path = self.getModelPath(object_class)
         # Legge il file .stl
-        stl_file_path = self.models + model_path  # Update the file path accordingly
+        stl_file_path = self.models + model_path 
         try:
             print(stl_file_path)
             mesh = o3d.io.read_triangle_mesh(stl_file_path)
@@ -146,16 +126,15 @@ class vision():
             print(f"Error reading STL file: {str(e)}")
             return None
 
-        # Crea una pointcloud a partire da una mesh tridimensionale utilizzando un campionamento uniforme dei punti sulla mesh.
+        # Crea una pointcloud a partire da una mesh tridimensionale
         nPoints = int (np.size(points))
-
         mesh_points = mesh.sample_points_uniformly(number_of_points=nPoints)
         stlPointCloud = o3d.geometry.PointCloud()
         stlPointCloud.points = mesh_points.points
 
         # Sottodimensiona le due pointcloud e estrae le fpfh features
-        inputPointCloud_down, inputPointCloud_fpfh = self.process_pointCloud(inputPointCloud)
-        stlPointCloud_down, stlPointCloud_fpfh = self.process_pointCloud(stlPointCloud)
+        inputPointCloud_down, inputPointCloud_fpfh = self.pointCloud_fpfh(inputPointCloud)
+        stlPointCloud_down, stlPointCloud_fpfh = self.pointCloud_fpfh(stlPointCloud)
 
         # Esegue la registrazione delle pointcloud
         result = self.registration(inputPointCloud_down, stlPointCloud_down, inputPointCloud_fpfh, stlPointCloud_fpfh)
@@ -206,8 +185,13 @@ class vision():
             coordinate.z = pointW[2]
             coordinate.cl = cl
             
-            # Ottiene i punti della pointcloud del blocco
-            point_region = self.pointCloudRegion(x_min, y_min, x_max, y_max)
+            # Genera un vettore di punti 
+            uv = [(x, y) for y in range(y_min, y_max + 1) for x in range(x_min, x_max + 1)]
+
+            # Trasforma i punti in coordinate x, y e z rispetto al camera frame
+            point_region = []
+            for data in point_cloud2.read_points(self.point_cloud, field_names=['x', 'y', 'z'], skip_nans=False, uvs=uv):
+                point_region.append([data[0], data[1], data[2]])
 
             # Trasforma i punti dal frame della camera al world frame
             points = []

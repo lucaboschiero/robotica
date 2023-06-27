@@ -187,7 +187,7 @@ void motionPlan(Vector6d pos_blocchetto, int classe) // flow di operazioni da se
     ;
   sleep(2);
 
-  shifted_final_stand = final_stand + Vector3d(0.02 * (classe), 0, 0);                                                // calcola posizione finale in base alla classe
+  shifted_final_stand = final_stand + Vector3d(0.03 * (classe), 0, 0);                                                // calcola posizione finale in base alla classe
   q_temp = moveTo(ur5Direct(q_temp), ur5Direct(q_temp) - up_down_di, Vector3d(0., 0.0, 0.0), Vector3d(0., 0.0, 0.0)); // alzo il cubetto
   sleep(1);
 
@@ -331,7 +331,7 @@ int main(int argc, char **argv) // main
       }
       end_time = time(NULL); // tempo per performance indicators
       total_time = end_time - start_time;
-      cout << "Tempo: " << total_time << "secondi" << endl;
+      cout << "Tempo: " << total_time << " secondi" << endl;
     }
 
     loop_time += (double)1 / loop_frequency;

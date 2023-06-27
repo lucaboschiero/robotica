@@ -274,56 +274,18 @@ class Ur5Generic(BaseControllerFixed):
                 if self.gripper:
                     p.controller_manager.gm.move_gripper(100)
                 break
-    
-    u = -1
-    v = -1
-    cl = -1
-    pubco = ros.Publisher("/coordinates", Coord)
-    
-    def defpoint(self, msg):
-        time.sleep(1)
-        global u
-        global v
-        global cl
-        # print(msg)
-
-        #print("u: ", msg.u)
-        #print("v: ", msg.v)
-        #print("cl: ", msg.Class)
-
-        u= int(msg.u)
-        v = int(msg.v)
-        cl = int(msg.Class)
-
-
-        # u=int((960/640)*u)
-        # v = int((540 / 640) * v)
 
     def receive_pointcloud(self, msg):
         points_list = []
-        global u
-        global v
-        global cl
 
-        # this is the center of the image plane
-        # center_x = int(msg.width / 2)
-        # center_y = int(msg.height / 2)
-        #print("MATRICE ROTAZIONE\n", self.w_R_c)
-        #print("X_C", self.x_c )
-        #print("OFFSET: ", self.base_offset)
+        u = 100
+        v = 100
 
-        if u != -1 & v != -1 & cl != -1:
-            for data in point_cloud2.read_points(msg, field_names=['x', 'y', 'z'], skip_nans=False, uvs=[(u, v)]):
-                points_list.append([data[0], data[1], data[2]])
+        for data in point_cloud2.read_points(msg, field_names=['x', 'y', 'z'], skip_nans=False, uvs=[(u, v)]):
+            points_list.append([data[0], data[1], data[2]])
             #print("Data Optical frame: ", points_list)
-            pointW = self.w_R_c.dot(points_list[0]) + self.x_c + self.base_offset
-            #print("Data World frame: ", pointW)
-            coordinate = Coord()
-            coordinate.x =pointW[0]
-            coordinate.y=pointW[1]
-            coordinate.z=pointW[2]
-            coordinate.cl=cl;
-            self.pubco.publish(coordinate)
+        pointW = self.w_R_c.dot(points_list[0]) + self.x_c + self.base_offset
+        #print("Data World frame: ", pointW)
 
 
 def talker(p):
@@ -368,9 +330,9 @@ def talker(p):
     # launch motion node (takes care of moving the end-effector, remember to add a rate.sleep!)
 
     # launch vision node (visual pipelines to detect object, made with service call)
-    # os.popen("roslaunch yolov5_ros yolov5.launch")
-    # os.popen("rosrun lab_palopoli point")
-    sub = ros.Subscriber("/points", Points, callback=p.defpoint, queue_size=100);
+    os.popen("roslaunch yolov5_ros yolov5.launch")
+
+
     #control loop (runs every dt seconds)
     while not ros.is_shutdown():
 
