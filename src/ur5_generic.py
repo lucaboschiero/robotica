@@ -9,7 +9,6 @@ from __future__ import print_function
 
 import os
 
-import custom_msgs
 import rospy as ros
 import sys
 # messages for topic subscribers
@@ -82,8 +81,8 @@ class Ur5Generic(BaseControllerFixed):
         #self.world_name = 'empty.world'
         #self.world_name = 'palopoli.world'
         #self.world_name = 'task1.world'
-        #self.world_name = 'task2.world'
-        self.world_name = 'task3.world'
+        self.world_name = 'task2.world'
+        #self.world_name = 'task3.world'
 
         print("Initialized ur5 generic  controller---------------------------------------------------------------")
 
