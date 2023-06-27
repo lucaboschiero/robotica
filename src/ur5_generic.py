@@ -43,10 +43,6 @@ from sensor_msgs import point_cloud2
 from sensor_msgs.msg import PointCloud2
 from tf.transformations import quaternion_from_euler
 
-import custom_msgs
-from custom_msgs.msg import Coord
-from custom_msgs.msg import Points
-
 class Ur5Generic(BaseControllerFixed):
 
     def __init__(self, robot_name="ur5"):
