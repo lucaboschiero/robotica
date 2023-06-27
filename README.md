@@ -12,7 +12,7 @@ Clone this repository inside **locosim/robot_control/lab_exercices**.
 
 Place the world file in **locosim/ros_impedance_controller/worlds/** and the models inside **locosim/ros_impedance_controller/worlds/models**. Make sure you have also the tavolo folder inside models.
 
-Then copy the **msg/detection_msgs** and **yolov5_ros** folders in the **ros_ws/src** folder.
+Then copy the **msg/detection_msgs** and **yolov5_ros** folders in the **ros_ws/src** folder. (you can also clone yolov5_ros from the repository [here](https://github.com/mats-robotics/yolov5_ros) ).
 
 Finally download the **last.pt** file [here](https://github.com/mfocchi/locosim) and move it into the **yolov5_ros** folder.
 
