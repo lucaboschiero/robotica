@@ -62,8 +62,6 @@ Vector3d Phid(Vector3d phie0,Vector3d phief,double t);
 Vector3d rotm2eulFDR(Matrix3d R);
 Matrix3d eul2rotmFDR(Vector3d eulXYZ);
 Vector3d computeOrientationErrorW(Matrix3d w_R_e, Matrix3d w_R_d);
-//Vector6d invDiffKinematiControl(Matrix86d qk, Vector3d xe, Vector3d xd,  Vector3d vd, Matrix3d K);
-//Eigen::MatrixXd invDiffKinematicControlSim(Vector3d xd, Vector6d TH0, Matrix3d K, double minT, double maxT, double Dt);
 MatrixXd invDiffKinematicControlSimComplete(Vector3d xe0,Vector3d xef,Vector3d phie0,Vector3d phief,Vector6d TH0, Matrix3d Kp, Matrix3d Kphi, double minT, double maxT, double Dt);
 Vector6d invDiffKinematiControlComplete(Vector6d q, Vector3d xe, Vector3d xd, Vector3d vd, Matrix3d w_R_e, Vector3d phid, Vector3d phiddot, Matrix3d Kp, Matrix3d Kphi);
 
