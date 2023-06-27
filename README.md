@@ -14,7 +14,7 @@ Place the world file in **locosim/ros_impedance_controller/worlds/** and the mod
 
 Then move the **msg/detection_msgs** and **yolov5_ros** folders in the **ros_ws/src** folder. (you can also clone yolov5_ros from the repository [here](https://github.com/mats-robotics/yolov5_ros) ). Move these directories and not only copy them, otherwise you will get an error.
 
-Finally download the **last.pt** file [here]([https://github.com/mfocchi/locosim](https://drive.google.com/file/d/1LOnxKGTqSHdLwhOvP8nNwq1wYvvzkmGX/view?usp=drive_link)) and move it into the **yolov5_ros** folder.
+Finally download the **last.pt** file [here](https://drive.google.com/file/d/1LOnxKGTqSHdLwhOvP8nNwq1wYvvzkmGX/view?usp=drive_link) and move it into the **yolov5_ros** folder.
 
 ## How to build?
 
