@@ -4,7 +4,7 @@
 
 #include "ros/ros.h"
 #include <std_msgs/Float64MultiArray.h>
-#include <custom_msgs/Coord.h>
+#include <robotica/Coord.h>
 #include <Eigen/Dense>
 #include <Eigen/Core>
 #include <realtime_tools/realtime_publisher.h>

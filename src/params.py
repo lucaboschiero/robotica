@@ -35,6 +35,6 @@ robot_params['ur5'] ={'dt': 0.001,
                        'spawn_y' : 0.35,
                        'spawn_z' : 1.75}
 
-plotting = True
+plotting = False
 
 
