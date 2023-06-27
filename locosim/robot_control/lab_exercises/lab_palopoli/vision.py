@@ -11,6 +11,7 @@ from custom_msgs.msg import Coord
 import open3d as o3d
 from transforms3d.euler import mat2euler
 from transforms3d.euler import euler2mat
+import time
 
 class vision():
 
@@ -26,7 +27,6 @@ class vision():
         self.voxel_size = 0.003
         self.models="/home/lucaboschiero/ros_ws/src/locosim/ros_impedance_controller/worlds/models"
         #self.model_names=np.array(["X1-Y1-Z2", "X1-Y2-Z1", "X1-Y2-Z2", "X1-Y2-Z2-CHAMFER", "X1-Y2-Z2-TWINFILLET", "X1-Y3-Z2", "X1-Y3-Z2-FILLET", "X1-Y4-Z1", "X1-Y4-Z2", "X2-Y2-Z2", "X2-Y2-Z2-FILLET"])
-
 
     def pointcloud_callback(self, msg):
         # Salva la pointcloud della camera
@@ -54,9 +54,9 @@ class vision():
     def registration(self, inputPointCloud_down, stlPointCloud_down, inputPointCloud_fpfh, stlPointCloud_fpfh):
         # Esegue la registrazione tra due point cloud utilizzando Open3D
 
-        distance_threshold = self.voxel_size * 1.5
 
-        # Eseguire la registrazione RANSAC basata sulla corrispondenza delle feature
+        # Esegue la registrazione RANSAC basata sulla corrispondenza delle feature
+        distance_threshold = self.voxel_size * 1.5
 
         result = o3d.pipelines.registration.registration_ransac_based_on_feature_matching(
             inputPointCloud_down, stlPointCloud_down, inputPointCloud_fpfh, stlPointCloud_fpfh, True, distance_threshold,
@@ -67,7 +67,7 @@ class vision():
             ], o3d.pipelines.registration.RANSACConvergenceCriteria(1000000, 500))
         
 
-        # Eseguire la registrazione ICP (Iterative Closest Point) tra le due point cloud. Questo passaggio serve per ottimizzare la registrazione
+        # Esegue la registrazione ICP (Iterative Closest Point) tra le due point cloud. Questo passaggio serve per ottimizzare la registrazione
         distance_threshold = self.voxel_size * 0.4
 
         result1 = o3d.pipelines.registration.registration_icp(
@@ -161,7 +161,8 @@ class vision():
         result = self.registration(inputPointCloud_down, stlPointCloud_down, inputPointCloud_fpfh, stlPointCloud_fpfh)
 
         # Ottiene la matrice di rotazione
-        R = result.transformation[:3, :3].copy()
+        R = result.transformation[:3, :3]
+
         return R
 
     def detection_callback(self, msg):
@@ -171,6 +172,11 @@ class vision():
 
         # Crea un messaggio dove salvare i dati da pubblicare
         coordinate = Coord()
+
+        print("Detection time: ",msg.time)
+
+        #salva il tempo di inizio
+        start_time = time.time()
 
         # Scorre tra gli elementi trovati da Yolo
         for i in range(msg.count):
@@ -222,6 +228,12 @@ class vision():
 
             # Inserisce nel messaggio la matrice di rotazione
             coordinate.R = rotation_matrix.flatten().tolist()
+
+            end_time = time.time()
+            # Calcola il tempo trascorso in secondi
+            total_time = end_time - start_time
+
+            print("Orientation detection time:", total_time, "secondi")
 
             # Pubblica il messaggio
             pubco.publish(coordinate)
