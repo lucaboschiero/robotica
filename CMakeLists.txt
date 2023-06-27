@@ -25,11 +25,11 @@ include_directories(include ${catkin_INCLUDE_DIRS} ${EIGEN3_INCLUDE_DIR})
 
 add_library(ur5kinematics.lib src/cpp/ur5kinematics.cpp)
 add_library(circlecheck.lib src/cpp/circlecheck.cpp)
-add_executable(custom_joint_publisher src/cpp/custom_joint_publisher.cpp)
-target_link_libraries(custom_joint_publisher ${catkin_LIBRARIES})
-target_link_libraries(custom_joint_publisher ur5kinematics.lib)
-target_link_libraries(custom_joint_publisher circlecheck.lib)
-install(TARGETS custom_joint_publisher ur5kinematics.lib circlecheck.lib
+add_executable(motion src/cpp/custom_joint_publisher.cpp)
+target_link_libraries(motion ${catkin_LIBRARIES})
+target_link_libraries(motion ur5kinematics.lib)
+target_link_libraries(motion circlecheck.lib)
+install(TARGETS motion ur5kinematics.lib circlecheck.lib
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
